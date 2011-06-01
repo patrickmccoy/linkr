@@ -60,7 +60,7 @@ NotFound.prototype.__proto__ = Error.prototype;
 
 app.get('/', function(req, res){
 	res.render('index', {
-		title: 'Express'
+		title: 'linkr'
 	});
 });
 
