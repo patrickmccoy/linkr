@@ -10,9 +10,20 @@ var host = 'localhost',
  * Module dependencies.
  */
 
-var express = require('express');
+var express = require('express'),
+	mongoose = require('mongoose');
+	
+var db = mongoose.connect('mongodb://localhost');
 
 var app = module.exports = express.createServer();
+
+
+/**
+ * Models 
+ */
+ 
+var users = require('./models/user').Users(db);
+
 
 // Configuration
 
