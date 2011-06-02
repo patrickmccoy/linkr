@@ -11,15 +11,11 @@ var host = 'localhost',
  */
 
 var express = require('express'),
-	mongoose = require('mongoose'),
-	komainu = require('komainu');
+	mongoose = require('mongoose');
 	
 var db = mongoose.connect('mongodb://localhost/linkr');
 
 var app = module.exports = express.createServer();
-
-var sp = komainu.createSecurityProvider();
-sp.addCredentials('test', 'test', 'LOGGED_IN_USER'); // test purposes only
 
 
 /**
@@ -27,41 +23,6 @@ sp.addCredentials('test', 'test', 'LOGGED_IN_USER'); // test purposes only
  */
  
 var users = require('./models/user').Users(db);
-
-
-/**
- * Security/Authentication Logic
- */
- 
-sp.on('login', function(req, res, username, password) {
-
-   /*
-	* You can now evaluate both the provided username and password
-	* against whatever domain user store you need in order to authenticate
-	* the login request.
-	*/
-	
-	users.findOne({ email: username }, function(err, user){
-		if (!err) {
-			
-			if (user.authenticate(password)) {
-				// set the user in the request object
-				var keys = {};
-				keys.user = user;
-				keys.status = 'OK';
-			
-				// make sure to emit the next two events to complete the auth chain
-				sp.emit('loginSuccess', req, res, username);
-				sp.emit('initSession', req, res, username, password, keys);
-			} else {
-				sp.emit('loginFailure', req, res, username);
-		}
-		}
-
-	});
-
-   
-});
 
 
 // Configuration
@@ -78,7 +39,6 @@ app.configure(function(){
 	app.use(express.methodOverride());
 	app.use(express.cookieParser());
 	app.use(express.session({ secret: 'keyboard cat' }));
-	app.use(sp.secure(function(req, res){ return true; }));
 	app.use(express.static(__dirname + '/public'));
 	app.use(app.router);
 	
@@ -112,24 +72,55 @@ NotFound.prototype.__proto__ = Error.prototype;
  * Helper Middleware
  */
 
-var auth = function(req, res) {
-	if (req.session.security.keys.status == 'OK') {
-		return true;
+var auth = function(req, res, next) {
+	if (req.session.security && (req.session.security.status == 'OK')) {
+		next();
 	} else {
-		return false;
+		res.redirect('/login');
 	}
 }
 
 // Routes
 
-app.get('/', sp.ignore(function(req,res){ return true; }), function(req, res){
+app.get('/', function(req, res){
 	res.render('index', {
 		title: 'linkr'
 	});
 });
 
 app.get('/secure', auth, function(req, res){
-	
+	res.render('index', {
+		title: 'linkr secure page'
+	})
+});
+
+app.get('/login', function(req, res){
+	res.render('login', {
+		title: 'linkr'
+	})
+});
+
+app.post('/login', function(req, res){
+	users.findOne({ email: req.body.email }, function(err, user){
+		if (!err) {
+			
+			if (user.authenticate(req.body.password)) {
+				// set the user in the request object
+				var security = {};
+				security.user = user;
+				security.status = 'OK';
+				security.role = user.role;
+			
+				req.session.security = security;
+				res.redirect('/secure');
+				
+			} else {
+				res.redirect('back');
+		}
+		}
+
+	});
+
 });
 
 app.all('*', function(req, res) {

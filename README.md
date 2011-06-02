@@ -11,7 +11,6 @@ Written for Node.js and using MongoDB for backed storage.
 	npm install express
 	npm install ejs
 	npm install mongoose  
-	npm install komainu
 	npm install hash
 	npm install joose
 	npm install joosex-namespace-depended
