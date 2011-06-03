@@ -185,7 +185,8 @@ app.post('/login', function(req, res){
 			if (user.authenticate(req.body.password)) {
 				// set the user in the request object
 				var security = {};
-				security.user = user;
+				security.user = {};
+				security.user.id = user.id;
 				security.status = 'OK';
 				security.role = user.role;
 			
