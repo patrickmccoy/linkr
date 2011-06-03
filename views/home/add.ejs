@@ -1,0 +1,9 @@
+<h1><%= title %></h1>
+
+<form action="/home/add" method="post">
+	<input type="hidden" name="_method" value="put">
+	<p>Add a link to read later:</p>
+	<p><label for="url">URL: </label><input type="url" name="url" id="url" required="required" placeholder="http://www.google.com"></p>
+	<p><input type="submit" name="submit" value="Add link!"></p>
+</form>
+	

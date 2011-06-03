@@ -23,6 +23,7 @@ var app = module.exports = express.createServer();
  */
  
 var users = require('./models/user').Users(db);
+var links = require('./models/link').Links(db);
 
 
 // Configuration
@@ -80,6 +81,14 @@ var auth = function(req, res, next) {
 	}
 }
 
+var restrictTo = function(role) {
+  return function(req, res, next) {
+    req.session.security.role == role
+      ? next()
+      : next(new Error('Unauthorized'));
+  }
+}
+
 // Routes
 
 app.get('/', function(req, res){
@@ -88,10 +97,79 @@ app.get('/', function(req, res){
 	});
 });
 
-app.get('/secure', auth, function(req, res){
-	res.render('index', {
-		title: 'linkr secure page'
-	})
+app.get('/create', function(req, res){
+	res.render('create', {
+		title: 'linkr | create'
+	});
+});
+
+app.put('/create', function(req, res){
+	if (req.body.email && req.body.pass && (req.body.pass === req.body.confirm) && req.body.first && req.body.last) {
+		var user = new users();
+		user.first = req.body.first;
+		user.last = req.body.last;
+		user.role = 'user';
+		user.email = req.body.email;
+		user.password = req.body.pass;
+		
+		user.save(function(err){
+			if (!err) {
+				// set the session and redirect
+				var security = {};
+				security.user = user;
+				security.status = 'OK';
+				security.role = user.role;
+			
+				req.session.security = security;
+				
+				res.redirect('/home');
+			} else {
+				throw new Error('User Save Error!');
+			}
+		});
+		
+	} else  {
+		res.redirect('back');
+	}
+	
+	
+	
+});
+
+app.get('/home', auth, function(req, res){
+	links.find({ owner: req.session.security.user.id }, function(err, link){
+		if (!err) {
+			res.render('home', {
+				  title: 'linkr'
+				, links: link
+			});
+		} else {
+			
+		}
+		
+	});
+	
+});
+
+app.get('/home/add', auth, function(req, res){
+	res.render('home/add', {
+		title: 'linkr | add'
+	});
+});
+
+app.put('/home/add', auth, function(req, res){
+	var link = new links();
+	link.owner = req.session.security.user.id;
+	link.link = req.body.url;
+	
+	link.save(function(err){
+		if (!err) {
+			res.redirect('/home');
+		} else {
+			throw new Error('Link Save Error!');
+		}
+	});
+	
 });
 
 app.get('/login', function(req, res){
@@ -112,7 +190,7 @@ app.post('/login', function(req, res){
 				security.role = user.role;
 			
 				req.session.security = security;
-				res.redirect('/secure');
+				res.redirect('/home');
 				
 			} else {
 				res.redirect('back');
@@ -121,6 +199,11 @@ app.post('/login', function(req, res){
 
 	});
 
+});
+
+app.get('/logout', function(req, res){
+	req.session.destroy();
+	res.redirect('home');
 });
 
 app.all('*', function(req, res) {

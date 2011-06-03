@@ -1,0 +1,17 @@
+<h1>Create a linkr account</h1>
+<p><a href="/" >&lt;&lt; Home</a></p>
+<p>Creating an account allows you to save links for later, as well as share saved links with others!</p>
+<p>Already have an account? <a href="/login" >Login here!</a></p>
+<form action="/create" method="post">
+	<input type="hidden" name="_method" value="put" >
+	<fieldset>
+		
+		<p><label>First Name:&nbsp;<input type="text" name="first" placeholder="Jon" required="required"></label></p>
+		<p><label>Last Name:&nbsp;<input type="text" name="last" placeholder="Smith" required="required"></label></p>
+		<p><label>Email:&nbsp;&nbsp;<input type="email" name="email" placeholder="you@gmail.com" required="required" ></label></p>
+		<p><label>Password:&nbsp;<input type="password" name="pass" required="required"></label></p>
+		<p><label>Confirm Password:&nbsp;<input type="password" name="confirm" required="required"></label></p>
+		
+		<p><input type="submit" value="Create!"></p>
+	</fieldset>
+</form>
