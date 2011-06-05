@@ -28,5 +28,5 @@ If everything went ok (it should if you followed the install), you will see the 
 
 	Express server listening on port 3001
 
-Now you can point your browser to (http://localhost:3001) to start interacting with linkr.
+Now you can point your browser to [http://localhost:3001](http://localhost:3001) to start interacting with linkr.
 
