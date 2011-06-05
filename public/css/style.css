@@ -6,3 +6,10 @@ body {
 a {
   color: #00B7FF;
 }
+
+form#add_link #url {
+	width: 400px;
+	height: 20px;
+}
+
+
