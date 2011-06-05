@@ -47,6 +47,10 @@ Link.virtual('niceTime').get(function(){
 	
 	hour = hour % 12;
 	
+	if (hour == 0) {
+		hour = 12;
+	}
+	
 	if (hour < 10) {
 		hour = '0'+hour;
 	}
