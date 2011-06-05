@@ -131,11 +131,46 @@ app.put('/create', function(req, res){
 	} else  {
 		res.redirect('back');
 	}
-	
-	
-	
 });
 
+app.get('/login', function(req, res){
+	res.render('login', {
+		title: 'linkr'
+	})
+});
+
+app.post('/login', function(req, res){
+	users.findOne({ email: req.body.email }, function(err, user){
+		if (!err) {
+			
+			if (user.authenticate(req.body.password)) {
+				// set the user in the request object
+				var security = {};
+				security.user = {};
+				security.user.id = user.id;
+				security.status = 'OK';
+				security.role = user.role;
+			
+				req.session.security = security;
+				res.redirect('/home');
+				
+			} else {
+				res.redirect('back');
+			}
+		}
+
+	});
+
+});
+
+app.get('/logout', function(req, res){
+	req.session.destroy();
+	res.redirect('home');
+});
+
+/**
+ * Authenticated Routes
+ */
 app.get('/home', auth, function(req, res){
 	links.find({ owner: req.session.security.user.id, read: 0 }).sort( 'time', 1 ).run(function(err, link){
 		if (!err) {
@@ -185,40 +220,47 @@ app.get('/home/archive', auth, function(req, res){
 	});
 });
 
-app.get('/login', function(req, res){
-	res.render('login', {
-		title: 'linkr'
-	})
-});
-
-app.post('/login', function(req, res){
-	users.findOne({ email: req.body.email }, function(err, user){
-		if (!err) {
-			
-			if (user.authenticate(req.body.password)) {
-				// set the user in the request object
-				var security = {};
-				security.user = {};
-				security.user.id = user.id;
-				security.status = 'OK';
-				security.role = user.role;
-			
-				req.session.security = security;
-				res.redirect('/home');
-				
-			} else {
-				res.redirect('back');
+app.get('/link/:id', auth, function(req, res){
+	links.findById(req.params.id, function(err, lnk){
+		if (!err && (lnk.owner == req.session.security.user.id)) {
+			lnk.read = 1;
+			lnk.save(function(err){
+				if (!err) {
+					res.redirect(lnk.link);
+				} else {
+					throw new Error('Link Save Error!');
+				}
+			});
+		} else {
+		
 		}
-		}
-
 	});
-
 });
 
-app.get('/logout', function(req, res){
-	req.session.destroy();
-	res.redirect('home');
+/**
+ * API Routes
+ */
+ 
+app.get('/api', auth, function(req, res){
+	links.find({ owner: req.session.security.user.id, read: 0 }).sort( 'time', 1 ).run(function(err, link){
+		if (!err) {
+			var response = { items: [], totalItems: link.length };
+			
+			link.forEach(function(lnk){
+				var return_link = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000) };
+				response.items.push(return_link);
+			});
+			res.send(JSON.stringify(response));
+		} else {
+			throw new Error('API Request Failed');
+		}
+	});
 });
+
+
+/**
+ * Catch-all and show a not found page
+ */
 
 app.all('*', function(req, res) {
 	throw new NotFound('Page not found.');
