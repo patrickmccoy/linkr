@@ -37,6 +37,32 @@ Link.virtual('id')
 		return this._id.toHexString();
 	});
 	
+Link.virtual('niceTime').get(function(){
+	var day = this.time.getDate(),
+		month = this.time.getMonth()+1,
+		year = this.time.getFullYear(),
+		hour = this.time.getHours(),
+		min = this.time.getMinutes(),
+		meridian = (hour < 12) ? 'am' : 'pm';
+	
+	hour = hour % 12;
+	
+	if (hour < 10) {
+		hour = '0'+hour;
+	}
+	if (min < 10) {
+		min = '0'+min;
+	}
+	if (month < 10) {
+		month = '0'+month;
+	}
+	if (day < 10) {
+		day = '0'+day;
+	}
+	
+	return month+'/'+day+'/'+year+' '+hour+':'+min+' '+meridian;
+});
+
 
 mongoose.model('Link', Link);
 

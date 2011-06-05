@@ -137,14 +137,18 @@ app.put('/create', function(req, res){
 });
 
 app.get('/home', auth, function(req, res){
-	links.find({ owner: req.session.security.user.id }, function(err, link){
+	links.find({ owner: req.session.security.user.id, read: 0 }).sort( 'time', 1 ).run(function(err, link){
 		if (!err) {
 			res.render('home', {
 				  title: 'linkr'
 				, links: link
 			});
 		} else {
-			
+			var link = [];
+			res.render('home', {
+				  title: 'linkr'
+				, links: link
+			});
 		}
 		
 	});
@@ -170,6 +174,15 @@ app.put('/home/add', auth, function(req, res){
 		}
 	});
 	
+});
+
+app.get('/home/archive', auth, function(req, res){
+	links.find({ owner: req.session.security.user.id }, function(err, link){
+		res.render('home', {
+			title: 'linkr | link archive'
+		  , links: link
+		});
+	});
 });
 
 app.get('/login', function(req, res){

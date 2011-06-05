@@ -75,10 +75,6 @@ User.method('makeSalt', function() {
     return str;
 });
 
-User.pre('save', function(next) {
-	next();
-});
-
 mongoose.model('User', User);
 
 
