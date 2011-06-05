@@ -1,8 +1,13 @@
 {
-    "name": "application-name"
+    "name": "linkr"
   , "version": "0.0.1"
   , "private": true
   , "dependencies": {
-    "ejs": ">= 0.0.1"
+  	 "express": ">= 2.3.11"
+    ,"ejs": ">= 0.0.1"
+    ,"mongoose": ">=1.3.7"
+    ,"hash": ">=0.06.0"
+    ,"joose": ">=3.18.0"
+    ,"joosex-namespace-depended": ">=0.16.0"
   }
 }
