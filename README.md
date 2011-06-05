@@ -21,9 +21,11 @@ You need to have NodeJS, NPM and MongoDB installed on your system to work.  Foll
 ## Running ##
 
 To run the link app, start the server by typing the following command in the linkr directory:
+
 	node app.js
 
 If everything went ok (it should if you followed the install), you will see the following printed to the screen:
+
 	Express server listening on port 3001
 
 Now you can point your browser to (http://localhost:3001) to start interacting with linkr.
