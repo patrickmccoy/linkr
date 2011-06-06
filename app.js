@@ -240,8 +240,14 @@ app.get('/link/:id', auth, function(req, res){
 /**
  * API Routes
  */
+
+// default content-type header for all api requests
+app.all('/api', auth, function(req, res, next){
+	res.header('Content-Type', 'application/json; charset=utf-8');
+	next();
+});
  
-app.get('/api', auth, function(req, res){
+app.get('/api', function(req, res){
 	links.find({ owner: req.session.security.user.id, read: 0 }).sort( 'time', 1 ).run(function(err, link){
 		if (!err) {
 			var response = { items: [], totalItems: link.length };
