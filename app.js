@@ -141,7 +141,7 @@ app.get('/login', function(req, res){
 
 app.post('/login', function(req, res){
 	users.findOne({ email: req.body.email }, function(err, user){
-		if (!err) {
+		if (!err && user) {
 			
 			if (user.authenticate(req.body.password)) {
 				// set the user in the request object
@@ -155,8 +155,10 @@ app.post('/login', function(req, res){
 				res.redirect('/home');
 				
 			} else {
-				res.redirect('back');
+				res.redirect('/login');
 			}
+		} else {
+			res.redirect('/login');
 		}
 
 	});
@@ -246,16 +248,33 @@ app.all('/api', auth, function(req, res, next){
 	res.header('Content-Type', 'application/json; charset=utf-8');
 	next();
 });
+app.all('/api/latest', auth, function(req, res, next){
+	res.header('Content-Type', 'application/json; charset=utf-8');
+	next();
+});
  
 app.get('/api', function(req, res){
-	links.find({ owner: req.session.security.user.id, read: 0 }).sort( 'time', 1 ).run(function(err, link){
-		if (!err) {
+	links.find({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'time': 1 } }).run(function(err, link){
+		if (!err && link) {
 			var response = { items: [], totalItems: link.length };
 			
 			link.forEach(function(lnk){
 				var return_link = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000) };
 				response.items.push(return_link);
 			});
+			res.send(JSON.stringify(response));
+		} else {
+			throw new Error('API Request Failed');
+		}
+	});
+});
+
+app.get('/api/latest', function(req, res){
+	links.findOne({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'time': 1 } }).run(function(err, lnk){
+		if (!err && lnk) {
+			
+			var response = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000) };
+			
 			res.send(JSON.stringify(response));
 		} else {
 			throw new Error('API Request Failed');
