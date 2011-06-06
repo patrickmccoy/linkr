@@ -224,8 +224,9 @@ app.get('/home/archive', auth, function(req, res){
 
 app.get('/link/:id', auth, function(req, res){
 	links.findById(req.params.id, function(err, lnk){
-		if (!err && (lnk.owner == req.session.security.user.id)) {
+		if (!err && lnk && (lnk.owner == req.session.security.user.id)) {
 			lnk.read = 1;
+			lnk.readTime = new Date();
 			lnk.save(function(err){
 				if (!err) {
 					res.redirect(lnk.link);
@@ -275,7 +276,7 @@ app.get('/api/archive', function(req, res){
 			var response = { items: [], totalItems: link.length };
 			
 			link.forEach(function(lnk){
-				var return_link = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000) };
+				var return_link = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000), readTime: Math.floor(lnk.readTime.getTime()/1000) };
 				response.items.push(return_link);
 			});
 			res.send(JSON.stringify(response));

@@ -19,6 +19,13 @@ form#add_link #url {
 div#links {
 	width: 900px;
 }
+
+div.link_header {
+	margin-top: 10px;
+	font-size: 14px;
+	font-weight: bold;
+}
+
 div.link {
 	margin-top:5px;
 	padding-top: 5px;
@@ -26,9 +33,13 @@ div.link {
 	border-top: 1px #999999 dotted;
 }
 
-.link span.time {
-	padding-right: 5px;
+span.time {
+	float: left;
+	width: 165px;
+	margin-right: 5px;
 	border-right: 1px #999999 dotted;
 }
+
+
 
 

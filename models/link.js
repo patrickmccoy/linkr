@@ -28,6 +28,7 @@ var Link = new Schema({
 	owner 	: { type: ObjectId, validate: [validatePresence, 'an owner is required'] }
   , link 	: { type: String, validate: [isValidURL, 'a link is required'] }
   , read 	: { type: Number, default: 0 }
+  , readTime: { type: Date, default: Date.now }
   , time 	: { type: Date, default: Date.now }
   , visibility 	: { type: String, default: 'private' }
 });
