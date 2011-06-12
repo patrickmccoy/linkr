@@ -47,27 +47,90 @@ app.configure(function(){
 });
 
 app.configure('development', function(){
-	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+	//app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 });
 
 app.configure('production', function(){
-	//app.use(express.errorHandler()); 
 });
 
-app.error(function(err, req, res, next) {
-	if (err instanceof NotFound) {
-		res.render('404', { title: 'linkr: not found', status: 404 });
-	} else {
-		res.render('500', { title: 'linkr', status: 500 });
-	}
-});
 
+/**
+ * Error Handling
+ */
+ 
 function NotFound(msg) {
 	this.name = 'NotFound';
+	this.msg = msg;
 	Error.call(this, msg);
 	Error.captureStackTrace(this, arguments.callee);
 }
 NotFound.prototype.__proto__ = Error.prototype;
+
+
+function AuthError(msg) {
+	this.name = 'APIError';
+	this.msg = msg;
+	Error.call(this, msg);
+	Error.captureStackTrace(this, arguments.callee);
+}
+AuthError.prototype.__proto__ = Error.prototype;
+
+function APIError(msg) {
+	this.name = 'APIError';
+	this.msg = msg;
+	Error.call(this, msg);
+	Error.captureStackTrace(this, arguments.callee);
+}
+APIError.prototype.__proto__ = Error.prototype;
+
+
+
+// NotFound errors
+app.error(function(err, req, res, next) {
+	if (err instanceof NotFound) {
+		res.header('Content-Type', 'text/html; charset=utf-8');
+		res.render('error/404', { title: 'linkr: not found', status: 404, message: err.msg });
+	} else {
+		next(err);
+	}
+});
+
+// AuthError errors
+app.error(function(err, req, res, next) {
+	if (err instanceof AuthError) {
+		res.header('Content-Type', 'text/html; charset=utf-8');
+		res.render('error/403', { title: 'linkr: forbidden', status: 403, message: err.msg });
+	} else {
+		next(err);
+	}
+});
+
+// APIError errors
+app.error(function(err, req, res, next){
+	if (err instanceof APIError) {
+		var response  = {},
+			code = 500,
+			headers = { 'Content-Type': 'application/json; charset=utf-8' };
+		
+		response.code = code;
+		response.uri = req.params;
+		response.error = { msg: err.msg };
+		
+		// send the response
+		res.send(JSON.stringify(response), headers, code);
+	} else {
+		next(err);
+	}
+});
+
+// All other errors
+app.error(function(err, req, res, next){
+	res.header('Content-Type', 'text/html; charset=utf-8');
+	res.render('error/500', { title: 'linkr', status: 500, message: err.msg });
+});
+
+
+
 
 /**
  * Helper Middleware
@@ -85,7 +148,7 @@ var restrictTo = function(role) {
   return function(req, res, next) {
     req.session.security.role == role
       ? next()
-      : next(new Error('Unauthorized'));
+      : next(new AuthError('You are forbidden to see this page.'));
   }
 }
 
@@ -244,7 +307,7 @@ app.get('/link/:id', auth, function(req, res){
  * API Routes
  */
 
-// default content-type header for all api requests
+// Authentication and default content-type header for all api requests
 app.all('/api', auth, function(req, res, next){
 	res.header('Content-Type', 'application/json; charset=utf-8');
 	next();
@@ -254,7 +317,7 @@ app.all('/api/*', auth, function(req, res, next){
 	next();
 });
  
-app.get('/api', function(req, res){
+app.get('/api', function(req, res, next){
 	links.find({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'time': 1 } }).run(function(err, link){
 		if (!err && link) {
 			var response = { items: [], totalItems: link.length };
@@ -265,12 +328,12 @@ app.get('/api', function(req, res){
 			});
 			res.send(JSON.stringify(response));
 		} else {
-			throw new Error('API Request Failed');
+			next(new APIError('API Request Failed'));
 		}
 	});
 });
 
-app.get('/api/archive', function(req, res){
+app.get('/api/archive', function(req, res, next){
 	links.find({ owner: req.session.security.user.id }, [], { sort: { 'time': -1 } }).run(function(err, link){
 		if (!err && link) {
 			var response = { items: [], totalItems: link.length };
@@ -281,12 +344,12 @@ app.get('/api/archive', function(req, res){
 			});
 			res.send(JSON.stringify(response));
 		} else {
-			throw new Error('API Request Failed');
+			next(new APIError('API Request Failed'));
 		}
 	});
 });
 
-app.get('/api/latest', function(req, res){
+app.get('/api/latest', function(req, res, next){
 	links.findOne({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'time': 1 } }).run(function(err, lnk){
 		if (!err && lnk) {
 			
@@ -294,10 +357,24 @@ app.get('/api/latest', function(req, res){
 			
 			res.send(JSON.stringify(response));
 		} else {
-			throw new Error('API Request Failed');
+			next(new APIError('API Request Failed'));
 		}
 	});
 });
+
+app.get('/api/link/:id', function(req, res, next){
+	links.findById(req.params.id, function(err, lnk){
+		if (!err && lnk) {
+			
+			var response = { user: lnk.owner, url: lnk.link, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000) };
+			
+			res.send(JSON.stringify(response));
+		} else {
+			next(new APIError('API Request Failed'));
+		}
+	});
+});
+
 
 
 /**
