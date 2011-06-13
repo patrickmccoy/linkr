@@ -399,7 +399,7 @@ app.get('/api', function(req, res, next){
 			var response = { items: [], totalItems: link.length };
 			
 			link.forEach(function(lnk){
-				var return_link = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000) };
+				var return_link = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
 				response.items.push(return_link);
 			});
 			res.send(JSON.stringify(response));
@@ -416,7 +416,7 @@ app.get('/api/archive', function(req, res, next){
 			var response = { items: [], totalItems: link.length };
 			
 			link.forEach(function(lnk){
-				var return_link = { user: lnk.owner, url: lnk.link, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), readTime: Math.floor(lnk.readTime.getTime()/1000) };
+				var return_link = { user: lnk.owner, url: lnk.link, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), readTime: Math.floor(lnk.readTime.getTime()/1000), uri: '/api/link/'+lnk.id };
 				response.items.push(return_link);
 			});
 			res.send(JSON.stringify(response));
@@ -430,12 +430,12 @@ app.get('/api/latest', function(req, res, next){
 	links.findOne({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'time': 1 } }).run(function(err, lnk){
 		if (!err) {
 			if (lnk) {
-				var response = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000) };
+				var response = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
 			
 				res.send(JSON.stringify(response));
 			} else {
 				var response = { user: req.session.security.user.id, error: { code: 204, type: 'NoContent', msg: 'You have no content to display!' } };
-				res.send(JSON.stringify(response), 204);
+				res.send(JSON.stringify(response), 200);
 			}
 			
 		} else {
@@ -449,7 +449,7 @@ app.get('/api/link/:id', function(req, res, next){
 		if (!err) {
 			if (lnk){
 				if (lnk.owner == req.session.security.user.id) {
-					var response = { user: lnk.owner, url: lnk.link, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000) };
+					var response = { user: lnk.owner, url: lnk.link, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
 				
 					res.send(JSON.stringify(response));
 				} else {
