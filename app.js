@@ -77,7 +77,13 @@ AuthError.prototype.__proto__ = Error.prototype;
 
 function APIError(msg) {
 	this.name = 'APIError';
-	this.msg = msg;
+	if (msg instanceof Object) {
+		this.msg = msg;
+	} else {
+		this.msg = {};
+		this.msg.code = 500;
+		this.msg.txt = msg;
+	}
 	Error.call(this, msg);
 	Error.captureStackTrace(this, arguments.callee);
 }
@@ -109,12 +115,11 @@ app.error(function(err, req, res, next) {
 app.error(function(err, req, res, next){
 	if (err instanceof APIError) {
 		var response  = {},
-			code = 500,
+			code = err.msg.code,
 			headers = { 'Content-Type': 'application/json; charset=utf-8' };
 		
 		response.code = code;
-		response.uri = req.params;
-		response.error = { msg: err.msg };
+		response.error = { msg: err.msg.txt };
 		
 		// send the response
 		res.send(JSON.stringify(response), headers, code);
