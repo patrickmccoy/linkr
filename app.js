@@ -276,7 +276,7 @@ app.get('/api/archive', function(req, res){
 			var response = { items: [], totalItems: link.length };
 			
 			link.forEach(function(lnk){
-				var return_link = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000), readTime: Math.floor(lnk.readTime.getTime()/1000) };
+				var return_link = { user: lnk.owner, url: lnk.link, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), readTime: Math.floor(lnk.readTime.getTime()/1000) };
 				response.items.push(return_link);
 			});
 			res.send(JSON.stringify(response));
