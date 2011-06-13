@@ -57,7 +57,8 @@ app.configure('production', function(){
 /**
  * Error Handling
  */
- 
+
+// NotFound hanldes not found errors
 function NotFound(msg) {
 	this.name = 'NotFound';
 	this.msg = msg;
@@ -66,15 +67,39 @@ function NotFound(msg) {
 }
 NotFound.prototype.__proto__ = Error.prototype;
 
-
+// AuthError handles authentication errors
 function AuthError(msg) {
-	this.name = 'APIError';
+	this.name = 'AuthError';
 	this.msg = msg;
 	Error.call(this, msg);
 	Error.captureStackTrace(this, arguments.callee);
 }
 AuthError.prototype.__proto__ = Error.prototype;
 
+// APIAuthError handles errors regarding authentication when using the API
+// Argument is an object with the HTTP response code and the txt message to display to the user
+function APIAuthError(msg) {
+	this.name = 'APIAuthError';
+
+	this.msg = msg;
+	
+	Error.call(this, msg);
+	Error.captureStackTrace(this, arguments.callee);
+}
+APIAuthError.prototype.__proto__ = Error.prototype;
+
+// APINotFound hanldes not found errors for API endpoints
+// Argument is an object with the HTTP response code and the txt message to display to the user
+function APINotFound(msg) {
+	this.name = 'APINotFound';
+	this.msg = msg;
+	Error.call(this, msg);
+	Error.captureStackTrace(this, arguments.callee);
+}
+APINotFound.prototype.__proto__ = Error.prototype;
+
+// APIError handles general API errors
+// Takes either a string, or an object as the single argument with the code and the text
 function APIError(msg) {
 	this.name = 'APIError';
 	if (msg instanceof Object) {
@@ -111,6 +136,41 @@ app.error(function(err, req, res, next) {
 	}
 });
 
+// APIAuthError errors
+app.error(function(err, req, res, next) {
+	if (err instanceof APIAuthError) {
+		var response  = {},
+			code = err.msg.code,
+			headers = { 'Content-Type': 'application/json; charset=utf-8' };
+		
+		response.code = code;
+		response.error = { msg: err.msg.txt };
+		
+		// send the response
+		res.send(JSON.stringify(response), headers, code);
+	} else {
+		next(err);
+	}
+});
+
+// APINotFound errors
+app.error(function(err, req, res, next) {
+	if (err instanceof APINotFound) {
+		var response  = {},
+			code = err.msg.code,
+			headers = { 'Content-Type': 'application/json; charset=utf-8' };
+		
+		response.code = code;
+		response.error = { msg: err.msg.txt };
+		
+		// send the response
+		res.send(JSON.stringify(response), headers, code);
+	} else {
+		next(err);
+	}
+});
+
+
 // APIError errors
 app.error(function(err, req, res, next){
 	if (err instanceof APIError) {
@@ -146,6 +206,14 @@ var auth = function(req, res, next) {
 		next();
 	} else {
 		res.redirect('/login');
+	}
+}
+
+var APIAuth = function(req, res, next) {
+	if (req.session.security && (req.session.security.status == 'OK')) {
+		next();
+	} else {
+		next(new APIAuthError({ code: 403, txt: 'You must authenticate to view this content' }));
 	}
 }
 
@@ -313,11 +381,11 @@ app.get('/link/:id', auth, function(req, res){
  */
 
 // Authentication and default content-type header for all api requests
-app.all('/api', auth, function(req, res, next){
+app.all('/api', APIAuth, function(req, res, next){
 	res.header('Content-Type', 'application/json; charset=utf-8');
 	next();
 });
-app.all('/api/*', auth, function(req, res, next){
+app.all('/api/*', APIAuth, function(req, res, next){
 	res.header('Content-Type', 'application/json; charset=utf-8');
 	next();
 });
@@ -332,6 +400,7 @@ app.get('/api', function(req, res, next){
 				response.items.push(return_link);
 			});
 			res.send(JSON.stringify(response));
+			
 		} else {
 			next(new APIError('API Request Failed'));
 		}
@@ -356,11 +425,16 @@ app.get('/api/archive', function(req, res, next){
 
 app.get('/api/latest', function(req, res, next){
 	links.findOne({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'time': 1 } }).run(function(err, lnk){
-		if (!err && lnk) {
+		if (!err) {
+			if (lnk) {
+				var response = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000) };
 			
-			var response = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000) };
+				res.send(JSON.stringify(response));
+			} else {
+				var response = { user: req.session.security.user.id, error: { type: 'NoContent', msg: 'You have no content to display!' } };
+				res.send(JSON.stringify(response));
+			}
 			
-			res.send(JSON.stringify(response));
 		} else {
 			next(new APIError('API Request Failed'));
 		}
@@ -369,11 +443,19 @@ app.get('/api/latest', function(req, res, next){
 
 app.get('/api/link/:id', function(req, res, next){
 	links.findById(req.params.id, function(err, lnk){
-		if (!err && lnk) {
+		if (!err) {
+			if (lnk){
+				if (lnk.owner == req.session.security.user.id) {
+					var response = { user: lnk.owner, url: lnk.link, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000) };
+				
+					res.send(JSON.stringify(response));
+				} else {
+					next(new APIAuthError({ code: 403, txt: 'You are forbidden from seeing this content' }));
+				}
+			} else {
+				next(new APINotFound({ code: 404, txt: 'No content at this URI endpoint' }));
+			}
 			
-			var response = { user: lnk.owner, url: lnk.link, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000) };
-			
-			res.send(JSON.stringify(response));
 		} else {
 			next(new APIError('API Request Failed'));
 		}
