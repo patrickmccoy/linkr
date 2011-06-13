@@ -82,6 +82,7 @@ function APIAuthError(msg) {
 	this.name = 'APIAuthError';
 
 	this.msg = msg;
+	this.msg.type = this.name;
 	
 	Error.call(this, msg);
 	Error.captureStackTrace(this, arguments.callee);
@@ -93,6 +94,8 @@ APIAuthError.prototype.__proto__ = Error.prototype;
 function APINotFound(msg) {
 	this.name = 'APINotFound';
 	this.msg = msg;
+	this.msg.type = this.name;
+	
 	Error.call(this, msg);
 	Error.captureStackTrace(this, arguments.callee);
 }
@@ -109,6 +112,9 @@ function APIError(msg) {
 		this.msg.code = 500;
 		this.msg.txt = msg;
 	}
+	
+	this.msg.type = this.name;
+	
 	Error.call(this, msg);
 	Error.captureStackTrace(this, arguments.callee);
 }
@@ -143,8 +149,7 @@ app.error(function(err, req, res, next) {
 			code = err.msg.code,
 			headers = { 'Content-Type': 'application/json; charset=utf-8' };
 		
-		response.code = code;
-		response.error = { msg: err.msg.txt };
+		response.error = err.msg;
 		
 		// send the response
 		res.send(JSON.stringify(response), headers, code);
@@ -160,8 +165,7 @@ app.error(function(err, req, res, next) {
 			code = err.msg.code,
 			headers = { 'Content-Type': 'application/json; charset=utf-8' };
 		
-		response.code = code;
-		response.error = { msg: err.msg.txt };
+		response.error = err.msg;
 		
 		// send the response
 		res.send(JSON.stringify(response), headers, code);
@@ -178,8 +182,7 @@ app.error(function(err, req, res, next){
 			code = err.msg.code,
 			headers = { 'Content-Type': 'application/json; charset=utf-8' };
 		
-		response.code = code;
-		response.error = { msg: err.msg.txt };
+		response.error = err.msg;
 		
 		// send the response
 		res.send(JSON.stringify(response), headers, code);
@@ -431,8 +434,8 @@ app.get('/api/latest', function(req, res, next){
 			
 				res.send(JSON.stringify(response));
 			} else {
-				var response = { user: req.session.security.user.id, error: { type: 'NoContent', msg: 'You have no content to display!' } };
-				res.send(JSON.stringify(response));
+				var response = { user: req.session.security.user.id, error: { code: 204, type: 'NoContent', msg: 'You have no content to display!' } };
+				res.send(JSON.stringify(response), 204);
 			}
 			
 		} else {
