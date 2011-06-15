@@ -242,7 +242,7 @@ app.get('/create', function(req, res){
 	});
 });
 
-app.put('/create', function(req, res){
+app.post('/create', function(req, res){
 	if (req.body.email && req.body.pass && (req.body.pass === req.body.confirm) && req.body.first && req.body.last) {
 		var user = new users();
 		user.first = req.body.first;
@@ -337,7 +337,7 @@ app.get('/home/add', auth, function(req, res){
 	});
 });
 
-app.put('/home/add', auth, function(req, res){
+app.post('/home/add', auth, function(req, res){
 	var link = new links();
 	link.owner = req.session.security.user.id;
 	link.link = req.body.url;
