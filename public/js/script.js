@@ -2,17 +2,18 @@
 
 */
 
+
 /**
  * Format a unix timestamp to look nice
  */
 var niceTime = function(timestamp) {
-	var date = new Date(timestamp*1000);
+	var nice_date = new Date(timestamp*1000);
 	
-	var day = date.getDate(),
-		month = date.getMonth()+1,
-		year = date.getFullYear(),
-		hour = date.getHours(),
-		min = date.getMinutes(),
+	var day = nice_date.getDate(),
+		month = nice_date.getMonth()+1,
+		year = nice_date.getFullYear(),
+		hour = nice_date.getHours(),
+		min = nice_date.getMinutes(),
 		meridian = (hour < 12) ? 'am' : 'pm';
 	
 	hour = hour % 12;
@@ -80,16 +81,15 @@ var showAddLink = function() {
 /**
  * Render a link from JSON and return a jQuery object of that rendered link for placing on the page
  */
-var renderLink = function(link) {
+var renderLink = function(data) {
 	var container = $('<div>').addClass('link'),
 		time = $('<span>').addClass('time'),
 		link_container = $('<span>').addClass('link'),
 		link = $('<a>').addClass('linkr_link').attr('target','_blank');
-		
-	time.html(niceTime(link.created));
+
+	time.html(niceTime(data.created));
 	
-	link.attr('href',link.url);
-	link.html(link.url);
+	link.attr('href', data.url).html(data.url);
 	
 	/* Put it all together */
 	link_container.append(link);

@@ -474,8 +474,8 @@ app.post('/api/link', function(req, res, next){
 	link.save(function(err){
 		if (!err) {
 			var response = { user: link.owner, url: link.link, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id };
-				
-			res.send(JSON.stringify(response));
+			res.header('Location',response.uri);
+			res.send(JSON.stringify(response),201);
 		} else {
 			throw new APIError('Link Save Error!');
 		}
