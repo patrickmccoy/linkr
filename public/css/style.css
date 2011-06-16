@@ -41,5 +41,8 @@ span.time {
 }
 
 
-
+form p.hint {
+	font-size: 10px;
+	color: gray;
+}
 
