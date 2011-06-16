@@ -140,11 +140,19 @@ var niceTime = function(timestamp) {
 
 
 /**
+ * Trim the length of a link and add an elipsis if its over a specified length
+ */ 
+var trimLinkLength = function(link_html) {
+	if (link_html.length > 100) {
+		link_html = link_html.substring(0,100)+'...';
+	}
+	return link_html;
+}
+
+/**
  * Render and show a modal window with an add link form in it
  */
 var showAddLink = function() {
-
-	
 
 	var form = $('<form>').attr('id','add_link_ajax'),
 		method = $('<input>').attr('type','hidden').attr('name','_method').val('post'),
@@ -191,7 +199,9 @@ var renderLink = function(data) {
 
 	time.html(niceTime(data.created));
 	
-	link.attr('href', data.url).html(data.url);
+	var link_html = trimLinkLength(data.url);
+	
+	link.attr('href', data.url).html(link_html);
 	
 	/* Put it all together */
 	link_container.append(link);
@@ -213,8 +223,12 @@ var addLinkToPage = function(renderedLink) {
 	
 }
 
+$('a.linkr_link').each(function(i, link){
+	link_html  = trimLinkLength($(this).html());
+	$(this).html(link_html);
+});
 
-$('.linkr_link').click(function(e){
+$('a.linkr_link').click(function(e){
 	e.preventDefault();
 	
 	var container = $(this).parent().parent(),

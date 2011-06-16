@@ -1,6 +1,6 @@
 body {
   padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 0.9em "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 #content {
@@ -22,11 +22,12 @@ div#links {
 
 div#links_header {
 	margin-top: 10px;
-	font-size: 14px;
+	font-size: 0.9em;
 	font-weight: bold;
 }
 
 div.link {
+	height: 1.2em;
 	margin-top:5px;
 	padding-top: 5px;
 	padding-bottom: 5px;
@@ -40,9 +41,13 @@ span.time {
 	border-right: 1px #999999 dotted;
 }
 
+span.linkr_link {
+	overflow-x: hidden;
+	text-wrap: none;
+}
 
 form p.hint {
-	font-size: 10px;
+	font-size: 0.7em;
 	color: gray;
 }
 
