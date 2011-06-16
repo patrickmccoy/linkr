@@ -465,6 +465,23 @@ app.get('/api/link/:id', function(req, res, next){
 	});
 });
 
+// create a new link
+app.post('/api/link', function(req, res, next){
+	var link = new links();
+	link.owner = req.session.security.user.id;
+	link.link = req.body.url;
+	
+	link.save(function(err){
+		if (!err) {
+			var response = { user: link.owner, url: link.link, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id };
+				
+			res.send(JSON.stringify(response));
+		} else {
+			throw new APIError('Link Save Error!');
+		}
+	});
+});
+
 
 
 /**
