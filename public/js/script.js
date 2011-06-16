@@ -100,9 +100,15 @@ var renderLink = function(data) {
 }
 
 var addLinkToPage = function(renderedLink) {
-	var linkContainer = $('div#links');
+	var linkContainer = $('div#links'),
+		linkHeader = $('div#links_header');
+
+	if (window.location.pathname == '/home/archive') {
+		linkHeader.after(renderedLink);
+	} else {
+		linkContainer.append(renderedLink);
+	}
 	
-	linkContainer.append(renderedLink);
 }
 
 
@@ -137,8 +143,6 @@ $('form#add_link_ajax').submit(function(e){
 		dataType: 'json'
 	});
 });
-
-
 
 
 

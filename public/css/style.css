@@ -20,7 +20,7 @@ div#links {
 	width: 900px;
 }
 
-div.link_header {
+div#links_header {
 	margin-top: 10px;
 	font-size: 14px;
 	font-weight: bold;
