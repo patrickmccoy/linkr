@@ -27,6 +27,7 @@ var Schema = mongoose.Schema
 var Link = new Schema({
 	owner 	: { type: ObjectId, validate: [validatePresence, 'an owner is required'] }
   , link 	: { type: String, validate: [isValidURL, 'a link is required'] }
+  , title	: { type: String }
   , read 	: { type: Number, default: 0 }
   , readTime: { type: Date, default: Date.now }
   , time 	: { type: Date, default: Date.now }

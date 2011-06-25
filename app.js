@@ -17,6 +17,8 @@ var db = mongoose.connect('mongodb://localhost/linkr');
 
 var app = module.exports = express.createServer();
 
+var nodeio = require('node.io');
+
 
 /**
  * Models 
@@ -344,6 +346,22 @@ app.post('/home/add', auth, function(req, res){
 	
 	link.save(function(err){
 		if (!err) {
+			// create the job to scrape the title
+			var job = new nodeio.Job({
+				input: false,
+				output: false,
+				run: function () {
+					this.getHtml(link.link, function(err, $) {
+						var title = $('title').fulltext
+						link.title = title;
+						link.save();
+					});
+				}
+			});
+			
+			// run the job
+			job.run();
+			
 			res.redirect('/home');
 		} else {
 			throw new Error('Link Save Error!');
@@ -399,7 +417,7 @@ app.get('/api', function(req, res, next){
 			var response = { items: [], totalItems: link.length };
 			
 			link.forEach(function(lnk){
-				var return_link = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
+				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
 				response.items.push(return_link);
 			});
 			res.send(JSON.stringify(response));
@@ -416,7 +434,7 @@ app.get('/api/archive', function(req, res, next){
 			var response = { items: [], totalItems: link.length };
 			
 			link.forEach(function(lnk){
-				var return_link = { user: lnk.owner, url: lnk.link, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), readTime: Math.floor(lnk.readTime.getTime()/1000), uri: '/api/link/'+lnk.id };
+				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), readTime: Math.floor(lnk.readTime.getTime()/1000), uri: '/api/link/'+lnk.id };
 				response.items.push(return_link);
 			});
 			res.send(JSON.stringify(response));
@@ -430,7 +448,7 @@ app.get('/api/latest', function(req, res, next){
 	links.findOne({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'time': 1 } }).run(function(err, lnk){
 		if (!err) {
 			if (lnk) {
-				var response = { user: lnk.owner, url: lnk.link, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
+				var response = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
 			
 				res.send(JSON.stringify(response));
 			} else {
@@ -449,7 +467,7 @@ app.get('/api/link/:id', function(req, res, next){
 		if (!err) {
 			if (lnk){
 				if (lnk.owner == req.session.security.user.id) {
-					var response = { user: lnk.owner, url: lnk.link, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
+					var response = { user: lnk.owner, url: lnk.link, title: lnk.title, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
 				
 					res.send(JSON.stringify(response));
 				} else {
@@ -471,9 +489,26 @@ app.post('/api/link', function(req, res, next){
 	link.owner = req.session.security.user.id;
 	link.link = req.body.url;
 	
+		
 	link.save(function(err){
 		if (!err) {
-			var response = { user: link.owner, url: link.link, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id };
+			// create the job to scrape the title
+			var job = new nodeio.Job({
+				input: false,
+				output: false,
+				run: function () {
+					this.getHtml(link.link, function(err, $) {
+						var title = $('title').fulltext
+						link.title = title;
+						link.save();
+					});
+				}
+			});
+			
+			// run the job
+			job.run();
+			
+			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id };
 			res.header('Location',response.uri);
 			res.send(JSON.stringify(response),201);
 		} else {

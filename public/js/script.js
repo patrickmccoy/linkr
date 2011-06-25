@@ -199,7 +199,10 @@ var renderLink = function(data) {
 
 	time.html(niceTime(data.created));
 	
-	var link_html = trimLinkLength(data.url);
+	// put the link together
+	var link_html = data.title ? data.title : data.url;
+	
+	link_html = trimLinkLength(link_html);
 	
 	link.attr('href', data.url).html(link_html);
 	

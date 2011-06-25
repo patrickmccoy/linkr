@@ -9,5 +9,6 @@
     , "hash": ">=0.06.0"
     , "joose": ">=3.18.0"
     , "joosex-namespace-depended": ">=0.16.0"
+    , "node.io": ">=0.3.3"
   }
 }

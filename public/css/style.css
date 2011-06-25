@@ -1,3 +1,5 @@
+@charset "UTF-8";
+
 body {
   padding: 50px;
   font: 0.9em "Lucida Grande", Helvetica, Arial, sans-serif;
@@ -16,11 +18,11 @@ form #url {
 	height: 20px;
 }
 
-div#links {
+#links {
 	width: 900px;
 }
 
-div#links_header {
+#links_header {
 	margin-top: 10px;
 	font-size: 0.9em;
 	font-weight: bold;
@@ -34,19 +36,19 @@ div.link {
 	border-top: 1px #999999 dotted;
 }
 
-span.time {
+.time {
 	float: left;
 	width: 165px;
 	margin-right: 5px;
 	border-right: 1px #999999 dotted;
 }
 
-span.linkr_link {
+.linkr_link {
 	overflow-x: hidden;
 	text-wrap: none;
 }
 
-form p.hint {
+form .hint {
 	font-size: 0.7em;
 	color: gray;
 }
