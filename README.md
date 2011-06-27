@@ -1,10 +1,12 @@
-# linkr #
+# [linkr](http://linkr.cc) #
 
 web application to save links for viewing later with built in sharing
 
 Inspired by the [Listsurf application](http://j2labs.tumblr.com/post/6030094019/listsurf-i-like-to-send-emails-i-especially) by J2 Labs ([GitHub](https://github.com/j2labs/listsurf)).
 
 Written for Node.js and using MongoDB for backed storage.
+
+Blog post about linkr [here](http://blog.jpgtransfer.com/post/6220484007/linkr-a-link-saver)
 
 ## Installing ##
 
