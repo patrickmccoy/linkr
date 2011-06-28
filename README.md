@@ -29,3 +29,14 @@ If everything went ok (it should if you followed the install), you will see the 
 
 Now you can point your browser to [http://localhost:3001](http://localhost:3001) to start interacting with linkr.
 
+### Running in Production ### 
+
+Right now, Express complains about the Connect memory session store when running in production, but if you are OK with this, you can run in production with the following command:
+
+	NODE_ENV=production node app.js
+	
+
+## Issues ##
+
+-Node.io has some problems and throws an error when it cannot get the title of a new link which causes the server to  stop.  Need to figure out how to ignore this error.
+-Connect memory session store when running in production mode.  I need to move the session store to Redis using connect-redis.
