@@ -446,11 +446,12 @@ app.get('/api/archive', function(req, res, next){
 	});
 });
 
+// get the latest unread link for the user
 app.get('/api/latest', function(req, res, next){
 	links.findOne({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'time': 1 } }).run(function(err, lnk){
 		if (!err) {
 			if (lnk) {
-				var response = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
+				var response = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+lnk.id };
 			
 				res.send(JSON.stringify(response));
 			} else {
