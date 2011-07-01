@@ -405,11 +405,19 @@ app.get('/link/:id', auth, function(req, res){
 
 // Authentication and default content-type header for all api requests
 app.all('/api', APIAuth, function(req, res, next){
-	res.header('Content-Type', 'application/json; charset=utf-8');
+	if (req.query.callback) {
+		res.header('Content-Type', 'application/x-javascript; charset=utf-8');
+	} else {
+		res.header('Content-Type', 'application/json; charset=utf-8');
+	}
 	next();
 });
 app.all('/api/*', APIAuth, function(req, res, next){
-	res.header('Content-Type', 'application/json; charset=utf-8');
+	if (req.query.callback) {
+		res.header('Content-Type', 'application/x-javascript; charset=utf-8');
+	} else {
+		res.header('Content-Type', 'application/json; charset=utf-8');
+	}
 	next();
 });
  
@@ -422,7 +430,11 @@ app.get('/api', function(req, res, next){
 				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
 				response.items.push(return_link);
 			});
-			res.send(JSON.stringify(response));
+			if (req.query.callback) {
+				res.send(req.query.callback+'('+JSON.stringify(response)+')');
+			} else {
+				res.send(JSON.stringify(response));
+			}
 			
 		} else {
 			next(new APIError('API Request Failed'));
@@ -439,7 +451,11 @@ app.get('/api/archive', function(req, res, next){
 				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), readTime: Math.floor(lnk.readTime.getTime()/1000), uri: '/api/link/'+lnk.id };
 				response.items.push(return_link);
 			});
-			res.send(JSON.stringify(response));
+			if (req.query.callback) {
+				res.send(req.query.callback+'('+JSON.stringify(response)+')');
+			} else {
+				res.send(JSON.stringify(response));
+			}
 		} else {
 			next(new APIError('API Request Failed'));
 		}
@@ -452,11 +468,19 @@ app.get('/api/latest', function(req, res, next){
 		if (!err) {
 			if (lnk) {
 				var response = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+lnk.id };
-			
-				res.send(JSON.stringify(response));
+				if (req.query.callback) {
+					res.send(req.query.callback+'('+JSON.stringify(response)+')');
+				} else {
+					res.send(JSON.stringify(response));
+				}
+				
 			} else {
 				var response = { user: req.session.security.user.id, error: { code: 204, type: 'NoContent', msg: 'You have no content to display!' } };
-				res.send(JSON.stringify(response), 200);
+				if (req.query.callback) {
+					res.send(req.query.callback+'('+JSON.stringify(response)+')',200);
+				} else {
+					res.send(JSON.stringify(response),200);
+				}
 			}
 			
 		} else {
@@ -471,8 +495,13 @@ app.get('/api/link/:id', function(req, res, next){
 			if (lnk){
 				if (lnk.owner == req.session.security.user.id) {
 					var response = { user: lnk.owner, url: lnk.link, title: lnk.title, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
-				
-					res.send(JSON.stringify(response));
+					
+					if (req.query.callback) {
+						res.send(req.query.callback+'('+JSON.stringify(response)+')');
+					} else {
+						res.send(JSON.stringify(response));
+					}
+					
 				} else {
 					next(new APIAuthError({ code: 403, txt: 'You are forbidden from seeing this content' }));
 				}
@@ -515,7 +544,12 @@ app.post('/api/link', function(req, res, next){
 			
 			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id };
 			res.header('Location',response.uri);
-			res.send(JSON.stringify(response),201);
+			
+			if (req.query.callback) {
+				res.send(req.query.callback+'('+JSON.stringify(response)+')',201);
+			} else {
+				res.send(JSON.stringify(response),201);
+			}
 		} else {
 			throw new APIError('Link Save Error!');
 		}
