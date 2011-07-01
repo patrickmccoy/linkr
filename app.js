@@ -556,6 +556,48 @@ app.post('/api/link', function(req, res, next){
 	});
 });
 
+// create a new link from the bookmarklet
+app.get('/api/bookmarklet_add', function(req, res, next){
+	var link = new links();
+	link.owner = req.session.security.user.id;
+	link.link = req.query.url;
+	
+		
+	link.save(function(err){
+		if (!err) {
+			// create the job to scrape the title
+			var job = new nodeio.Job({
+				input: false,
+				output: false,
+				run: function () {
+					this.getHtml(link.link, function(err, $) {
+						if (!err) {
+							var title = $('title').fulltext
+							link.title = title;
+							link.save();
+						}
+					});
+				}
+			});
+			
+			// run the job
+			job.run();
+			
+			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id };
+			res.header('Location',response.uri);
+			
+			if (req.query.callback) {
+				res.send(req.query.callback+'('+JSON.stringify(response)+')',201);
+			} else {
+				res.send(JSON.stringify(response),201);
+			}
+		} else {
+			throw new APIError('Link Save Error!');
+		}
+	});
+});
+
+
 
 
 /**
