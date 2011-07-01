@@ -263,7 +263,12 @@ $('form#add_link_ajax').submit(function(e){
 	});
 });
 
-
+// show the bookmarklets div
+$('a#bookmarklet_show').click(function(e){
+	e.preventDefault();
+	
+	$('div#bookmarklets').toggle(400);
+});
 
 
 

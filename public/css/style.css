@@ -53,3 +53,6 @@ form .hint {
 	color: gray;
 }
 
+div#bookmarklets {
+	display: none;
+}
