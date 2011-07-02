@@ -37,7 +37,7 @@ app.configure(function(){
 			layout: true,
 			title: 'linkr'
 	});
-	app.use(express.logger({ format: '":date" ":remote-addr" ":response-time" ":method" ":url" ":status" ":referrer" ":user-agent"' }));
+	app.use(express.logger({ format: 'date=":date"\taddr=:remote-addr\tresponse_time=:response-time\tmethod=:method\turl=:url\tstatus=:status\treferrer=:referrer\tuser_agent=":user-agent"' }));
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(express.cookieParser());
