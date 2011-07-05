@@ -210,7 +210,7 @@ var auth = function(req, res, next) {
 	if (req.session.security && (req.session.security.status == 'OK')) {
 		next();
 	} else {
-		res.redirect('/login');
+		res.redirect('/login?redirect='+req.url);
 	}
 }
 
@@ -293,7 +293,12 @@ app.post('/login', function(req, res){
 				security.role = user.role;
 			
 				req.session.security = security;
-				res.redirect('/home');
+
+				if (req.query.redirect) {
+					res.redirect(req.query.redirect);
+				} else {
+					res.redirect('/home');
+				}
 				
 			} else {
 				res.redirect('/login');
