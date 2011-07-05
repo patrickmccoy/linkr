@@ -358,9 +358,11 @@ app.post('/home/add', auth, function(req, res){
 				run: function () {
 					this.getHtml(link.link, function(err, $) {
 						if (!err) {
-							var title = $('title').fulltext
-							link.title = title;
-							link.save();
+							if ($('title')) {
+								var title = $('title').fulltext
+								link.title = title;
+								link.save();
+							}
 						}
 					});
 				}
@@ -536,9 +538,11 @@ app.post('/api/link', function(req, res, next){
 				run: function () {
 					this.getHtml(link.link, function(err, $) {
 						if (!err) {
-							var title = $('title').fulltext
-							link.title = title;
-							link.save();
+							if ($('title')) {
+								var title = $('title').fulltext
+								link.title = title;
+								link.save();
+							}
 						}
 					});
 				}
