@@ -5,7 +5,29 @@ $.ajax({
 	url: uri_base+'/api/bookmarklet_add',
 	data: { url: window.location.href },
 	success: function(data){
-		alert('Page added to linkr!');
+		var msg;
+		
+		if (!data.error) {
+			msg = 'The link was successfully added to linkr!';
+		} else if (data.error.code == 403) {
+			msg = 'The link cannot be added to linkr because you are not authenticated, please <a href="http://linkr.cc/login">login</a> and try again.';
+		}
+		
+		var width = 300,
+			height = 50
+			container = $('<div>').attr('id','linkr_add_confirm')
+				.css('font-size','14px')
+				.css('text-align','center')
+				.css('background-color','#f99')
+				.css('position','absolute')
+				.css('margin','0 auto 0 auto')
+				.css('padding','5px 10px 5px 10px')
+				.css('top','0')
+				.css('left','40%')
+				.css('width',width+'px')
+				.css('height',height+'px')
+				.html(msg)
+				.appendTo($('body')).delay(5000).fadeOut('slow');
 	},
 	dataType: 'jsonp'
 });

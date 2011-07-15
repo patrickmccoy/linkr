@@ -434,7 +434,7 @@ app.get('/api', function(req, res, next){
 			var response = { items: [], totalItems: link.length };
 			
 			link.forEach(function(lnk){
-				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
+				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+lnk.id };
 				response.items.push(return_link);
 			});
 			if (req.query.callback) {
@@ -455,7 +455,7 @@ app.get('/api/archive', function(req, res, next){
 			var response = { items: [], totalItems: link.length };
 			
 			link.forEach(function(lnk){
-				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), readTime: Math.floor(lnk.readTime.getTime()/1000), uri: '/api/link/'+lnk.id };
+				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), readTime: Math.floor(lnk.readTime.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+lnk.id };
 				response.items.push(return_link);
 			});
 			if (req.query.callback) {
@@ -501,7 +501,7 @@ app.get('/api/link/:id', function(req, res, next){
 		if (!err) {
 			if (lnk){
 				if (lnk.owner == req.session.security.user.id) {
-					var response = { user: lnk.owner, url: lnk.link, title: lnk.title, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id };
+					var response = { user: lnk.owner, url: lnk.link, title: lnk.title, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+lnk.id };
 					
 					if (req.query.callback) {
 						res.send(req.query.callback+'('+JSON.stringify(response)+')');
@@ -551,7 +551,7 @@ app.post('/api/link', function(req, res, next){
 			// run the job
 			job.run();
 			
-			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id };
+			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id, readLink: '/link/'+lnk.id };
 			res.header('Location',response.uri);
 			
 			if (req.query.callback) {
@@ -592,7 +592,7 @@ app.get('/api/bookmarklet_add', function(req, res, next){
 			// run the job
 			job.run();
 			
-			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id };
+			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id, readLink: '/link/'+lnk.id };
 			res.header('Location',response.uri);
 			
 			if (req.query.callback) {
