@@ -301,10 +301,10 @@ app.post('/login', function(req, res){
 				}
 				
 			} else {
-				res.redirect('/login');
+				res.redirect('/logout');
 			}
 		} else {
-			res.redirect('/login');
+			res.redirect('/logout');
 		}
 
 	});
@@ -319,6 +319,67 @@ app.get('/logout', function(req, res){
 /**
  * Authenticated Routes
  */
+ 
+app.get('/account', auth, function(req, res){
+	users.findById(req.session.security.user.id, function(err, user){
+		if (!err && user) {
+			res.render('account', {
+				title: 'linkr | edit account',
+				user: user,
+				notifications: req.flash('account')
+			});
+		} else if (err) {
+			throw new Error('Database error');
+		} else {
+			res.redirect('/logout');
+		}
+	});
+	
+});
+
+app.put('/account', auth, function(req, res){
+	users.findById(req.session.security.user.id, function(err, user){
+		if (!err && user) {
+		
+			if (req.body.first != '' && (req.body.first != user.first)) {
+				user.first = req.body.first;
+				req.flash('account','First name updated');
+			}
+			if (req.body.last != '' && (req.body.last != user.last)) {
+				user.last = req.body.last;
+				req.flash('account','Last name updated');
+			}
+			if (req.body.email != '' && (req.body.email != user.email)) {
+				user.email = req.body.email;
+				req.flash('account','Email updated');
+			}
+			
+			if (req.body.password && req.body.confirm) {
+			 	if (req.body.password == req.body.confirm) {
+					user.password = req.body.password;
+					req.flash('account','Password updated');
+					console.log('password updated');
+				} else {
+					req.flash('account','Your passwords must match');
+				}
+			}
+			
+			user.save(function(err){
+				if (!err) {
+					res.redirect('back')
+				} else {
+					throw new Error('User Save Error!');
+				}
+			});
+			
+		} else if (err) {
+			throw new Error('Database error');
+		} else {
+			res.redirect('/logout');
+		}
+	});
+});
+
 app.get('/home', auth, function(req, res){
 	links.find({ owner: req.session.security.user.id, read: 0 }).sort( 'time', 1 ).run(function(err, link){
 		if (!err) {

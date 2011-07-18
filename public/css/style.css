@@ -56,3 +56,21 @@ form .hint {
 div#bookmarklets {
 	display: none;
 }
+
+.notification {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding: 5px;
+	
+	width: 50em;
+	
+	color: #363636;
+	font-weight: bold;
+	font-size: 12px;
+	
+	background: #ffeb80 url(../images/ui-bg_inset-hard_55_ffeb80_1x100.png) 50% bottom repeat-x;
+	border: 1px solid #ffde2e;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
