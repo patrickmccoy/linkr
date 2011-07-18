@@ -13,6 +13,8 @@ var host = 'localhost',
 var express = require('express'),
 	mongoose = require('mongoose');
 	
+var RedisStore = require('connect-redis')(express);
+	
 var db = mongoose.connect('mongodb://localhost/linkr');
 
 var app = module.exports = express.createServer();
@@ -41,7 +43,7 @@ app.configure(function(){
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(express.cookieParser());
-	app.use(express.session({ secret: 'keyboard cat' }));
+	app.use(express.session({ secret: 'keyboard cat', store: new RedisStore }));
 	app.use(express.static(__dirname + '/public'));
 	app.use(app.router);
 	
@@ -495,7 +497,7 @@ app.get('/api', function(req, res, next){
 			var response = { items: [], totalItems: link.length };
 			
 			link.forEach(function(lnk){
-				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+lnk.id };
+				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+link.id };
 				response.items.push(return_link);
 			});
 			if (req.query.callback) {
@@ -612,7 +614,7 @@ app.post('/api/link', function(req, res, next){
 			// run the job
 			job.run();
 			
-			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id, readLink: '/link/'+lnk.id };
+			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id, readLink: '/link/'+link.id };
 			res.header('Location',response.uri);
 			
 			if (req.query.callback) {
@@ -653,7 +655,7 @@ app.get('/api/bookmarklet_add', function(req, res, next){
 			// run the job
 			job.run();
 			
-			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id, readLink: '/link/'+lnk.id };
+			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id, readLink: '/link/'+link.id };
 			res.header('Location',response.uri);
 			
 			if (req.query.callback) {
