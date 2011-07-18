@@ -38,4 +38,4 @@ Right now, Express complains about the Connect memory session store when running
 
 ## Issues ##
 
-- Connect memory session store when running in production mode.  I need to move the session store to Redis using connect-redis.
+- Better error handling in the UI
