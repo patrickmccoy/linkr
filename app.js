@@ -303,7 +303,7 @@ app.post('/login', function(req, res){
 				}
 				
 			} else {
-				res.redirect('/logout');
+				res.redirect('/login');
 			}
 		} else {
 			res.redirect('/logout');
