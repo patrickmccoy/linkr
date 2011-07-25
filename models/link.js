@@ -32,6 +32,7 @@ var Link = new Schema({
   , readTime: { type: Date, default: Date.now }
   , time 	: { type: Date, default: Date.now }
   , visibility 	: { type: String, default: 'private' }
+  , priority	: { type: Number, default: 0, min: 0, max: 1000 }
 });
 
 Link.virtual('id')
