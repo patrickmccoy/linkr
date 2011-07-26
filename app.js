@@ -3,7 +3,8 @@
  */
 
 var host = 'localhost',
-    port = 3001;
+    port = 3001,
+    show_banner = true;
 
 
 /**
@@ -51,10 +52,12 @@ app.configure(function(){
 });
 
 app.configure('development', function(){
+	
 	//app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 });
 
 app.configure('production', function(){
+	show_banner = false;
 });
 
 
@@ -777,4 +780,6 @@ app.all('*', function(req, res) {
 });
 
 app.listen(port,host);
-console.log("Express server listening on port %d", app.address().port);
+if (show_banner) {
+	console.log("Express server listening on port %d", app.address().port);
+}
