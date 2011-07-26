@@ -216,14 +216,6 @@ var auth = function(req, res, next) {
 	}
 }
 
-var APIAuth = function(req, res, next) {
-	if (req.session.security && (req.session.security.status == 'OK')) {
-		next();
-	} else {
-		next(new APIAuthError({ code: 403, txt: 'You must authenticate to view this content' }));
-	}
-}
-
 var restrictTo = function(role) {
   return function(req, res, next) {
     req.session.security.role == role
@@ -482,11 +474,45 @@ app.get('/link/:id', auth, function(req, res){
  * API helper functions
  */
 
+var APIAuth = function(req, res, next) {
+	if (req.session.security && (req.session.security.status == 'OK')) {
+		next();
+	} else {
+		next(new APIAuthError({ code: 403, txt: 'You must authenticate to view this content' }));
+	}
+}
+
+var APIRestrictTo = function(role) {
+	return function (req, res, next) {
+		req.session.security.role == role
+		  ? next()
+		  : next(new APIAuthError({ code: 403, txt: 'You are forbidden to see this page.' }));
+	}
+}
+
+var APILoadUser = function(req, res, next) {
+	var user_id = (req.params.id) ? req.params.id : req.session.security.user.id;
+	
+	users.findById(user_id, function(err, user) {
+		if (!err) {
+			if (user) {
+				req.user = user;
+				next();
+				
+			} else {
+				next(new APINotFound({ code: 404, txt: 'No content at this URI endpoint' }));
+			}
+		} else {
+			next(new APIError('API Request Failed'));
+		}
+	});
+}
+
 // return a JSON object populated with the properly formatted link fields for an API response
 var populate_link_response = function(link) {
 	var response = {};
 	
-	response.owner = link.owner;
+	response.owner = '/api/user/'+link.owner;
 	response.url = link.link;
 	response.title = link.title;
 	response.read = link.read;
@@ -499,6 +525,20 @@ var populate_link_response = function(link) {
 	return response;
 }
 
+// return a JSON object populated with the properly formatted user fields for an API response
+var populate_user_response = function(user) {
+	var response = {};
+	
+	response.id = user.id;
+	response.email = user.email;
+	response.name = {	first: user.first,
+						last: user.last,
+						full: user.name
+					 };
+	response.uri = '/api/user/'+user.id;
+	
+	return response;
+}
 
 /**
  * API Routes
@@ -522,7 +562,12 @@ app.all('/api/*', APIAuth, function(req, res, next){
 	}
 	next();
 });
- 
+
+/**
+ * Link endpoints
+ */
+
+// return a list of all unread links for an authenticated user
 app.get('/api', function(req, res, next){
 	links.find({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'priority': -1, 'time': 1 } }).run(function(err, links){
 		if (!err && links) {
@@ -702,6 +747,25 @@ app.get('/api/bookmarklet_add', function(req, res, next){
 });
 
 
+/** END LINK ENDPOINTS */
+
+/**
+ * User endpoints
+ */
+app.get('/api/user/:id?', APILoadUser, APIRestrictTo('admin'), function(req, res, next) {
+	var response = populate_user_response(req.user);
+	
+	if (req.query.callback) {
+		res.send(req.query.callback+'('+JSON.stringify(response)+')',200);
+	} else {
+		res.send(JSON.stringify(response),200);
+	}
+});
+
+
+
+
+/** END USER ENDPOINTS */
 
 
 /**
