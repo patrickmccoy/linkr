@@ -392,7 +392,7 @@ app.put('/account', auth, function(req, res){
 });
 
 app.get('/home', auth, function(req, res){
-	links.find({ owner: req.session.security.user.id, read: 0 }).sort( 'time', 1 ).run(function(err, link){
+	links.find({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'priority': -1, 'time': 1 } }).run(function(err, link){
 		if (!err) {
 			res.render('home', {
 				  title: 'linkr'
@@ -479,8 +479,31 @@ app.get('/link/:id', auth, function(req, res){
 });
 
 /**
+ * API helper functions
+ */
+
+// return a JSON object populated with the properly formatted link fields for an API response
+var populate_link_response = function(link) {
+	var response = {};
+	
+	response.owner = link.owner;
+	response.url = link.link;
+	response.title = link.title;
+	response.read = link.read;
+	response.priority = link.priority;
+	response.created = Math.floor(link.time.getTime()/1000);
+	response.readTime = Math.floor(link.readTime.getTime()/1000);
+	response.uri = '/api/link/'+link.id;
+	response.readLink = '/link/'+link.id;
+	
+	return response;
+}
+
+
+/**
  * API Routes
  */
+
 
 // Authentication and default content-type header for all api requests
 app.all('/api', APIAuth, function(req, res, next){
@@ -501,13 +524,12 @@ app.all('/api/*', APIAuth, function(req, res, next){
 });
  
 app.get('/api', function(req, res, next){
-	links.find({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'priority': -1, 'time': 1 } }).run(function(err, link){
-		if (!err && link) {
-			var response = { items: [], totalItems: link.length };
+	links.find({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'priority': -1, 'time': 1 } }).run(function(err, links){
+		if (!err && links) {
+			var response = { items: [], totalItems: links.length };
 			
-			link.forEach(function(lnk){
-				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+link.id };
-				response.items.push(return_link);
+			links.forEach(function(lnk){
+				response.items.push(populate_link_response(lnk));
 			});
 			if (req.query.callback) {
 				res.send(req.query.callback+'('+JSON.stringify(response)+')');
@@ -522,13 +544,12 @@ app.get('/api', function(req, res, next){
 });
 
 app.get('/api/archive', function(req, res, next){
-	links.find({ owner: req.session.security.user.id }, [], { sort: { 'time': -1 } }).run(function(err, link){
-		if (!err && link) {
-			var response = { items: [], totalItems: link.length };
+	links.find({ owner: req.session.security.user.id }, [], { sort: { 'time': -1 } }).run(function(err, links){
+		if (!err && links) {
+			var response = { items: [], totalItems: links.length };
 			
-			link.forEach(function(lnk){
-				var return_link = { user: lnk.owner, url: lnk.link, title: lnk.title, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), readTime: Math.floor(lnk.readTime.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+lnk.id };
-				response.items.push(return_link);
+			links.forEach(function(lnk){
+				response.items.push(populate_link_response(lnk));
 			});
 			if (req.query.callback) {
 				res.send(req.query.callback+'('+JSON.stringify(response)+')');
@@ -546,7 +567,8 @@ app.get('/api/latest', function(req, res, next){
 	links.findOne({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'priority': -1, 'time': 1 } }).run(function(err, lnk){
 		if (!err) {
 			if (lnk) {
-				var response = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+lnk.id };
+				var response = populate_link_response(lnk);
+				
 				if (req.query.callback) {
 					res.send(req.query.callback+'('+JSON.stringify(response)+')');
 				} else {
@@ -573,7 +595,7 @@ app.get('/api/link/:id', function(req, res, next){
 		if (!err) {
 			if (lnk){
 				if (lnk.owner == req.session.security.user.id) {
-					var response = { user: lnk.owner, url: lnk.link, title: lnk.title, read: lnk.read, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+lnk.id };
+					var response = populate_link_response(lnk);
 					
 					if (req.query.callback) {
 						res.send(req.query.callback+'('+JSON.stringify(response)+')');
@@ -623,7 +645,8 @@ app.post('/api/link', function(req, res, next){
 			// run the job
 			job.run();
 			
-			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id, readLink: '/link/'+link.id };
+			var response = populate_link_response(lnk);
+			
 			res.header('Location',response.uri);
 			
 			if (req.query.callback) {
@@ -664,7 +687,7 @@ app.get('/api/bookmarklet_add', function(req, res, next){
 			// run the job
 			job.run();
 			
-			var response = { user: link.owner, url: link.link, title: link.title, read: link.read, created: Math.floor(link.time.getTime()/1000), uri: '/api/link/'+link.id, readLink: '/link/'+link.id };
+			var response = populate_link_response(link);
 			res.header('Location',response.uri);
 			
 			if (req.query.callback) {
