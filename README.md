@@ -31,7 +31,7 @@ Now you can point your browser to [http://localhost:3001](http://localhost:3001)
 
 ### Running in Production ###
 
-Right now, Express complains about the Connect memory session store when running in production, but if you are OK with this, you can run in production with the following command:
+You can run linkr in production with the following command:
 
 	NODE_ENV=production node app.js
 	
