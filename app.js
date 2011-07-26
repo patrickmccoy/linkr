@@ -295,6 +295,15 @@ app.post('/login', function(req, res){
 				security.role = user.role;
 			
 				req.session.security = security;
+				
+				if (req.body.remember_me) {
+					var day = 3600000 * 24,
+						month = day*30;
+					req.session.cookie.expires = new Date(Date.now() + month);
+					req.session.cookie.maxAge = month;
+				}
+				
+				req.session.save();
 
 				if (req.query.redirect) {
 					res.redirect(req.query.redirect);
@@ -492,7 +501,7 @@ app.all('/api/*', APIAuth, function(req, res, next){
 });
  
 app.get('/api', function(req, res, next){
-	links.find({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'time': 1 } }).run(function(err, link){
+	links.find({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'priority': -1, 'time': 1 } }).run(function(err, link){
 		if (!err && link) {
 			var response = { items: [], totalItems: link.length };
 			
@@ -534,7 +543,7 @@ app.get('/api/archive', function(req, res, next){
 
 // get the latest unread link for the user
 app.get('/api/latest', function(req, res, next){
-	links.findOne({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'time': 1 } }).run(function(err, lnk){
+	links.findOne({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'priority': -1, 'time': 1 } }).run(function(err, lnk){
 		if (!err) {
 			if (lnk) {
 				var response = { user: lnk.owner, url: lnk.link, title: lnk.title, created: Math.floor(lnk.time.getTime()/1000), uri: '/api/link/'+lnk.id, readLink: '/link/'+lnk.id };
