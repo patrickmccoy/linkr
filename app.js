@@ -422,11 +422,14 @@ app.post('/home/add', auth, function(req, res){
 			var job = new nodeio.Job({
 				input: false,
 				output: false,
+				jsdom: true,
+				retries: 3,
+				auto_retry: true,
 				run: function () {
 					this.getHtml(link.link, function(err, $) {
 						if (!err) {
 							if ($('title')) {
-								var title = $('title').fulltext
+								var title = $('title').fulltext;
 								link.title = title;
 								link.save();
 							}
@@ -677,11 +680,14 @@ app.post('/api/link', function(req, res, next){
 			var job = new nodeio.Job({
 				input: false,
 				output: false,
+				jsdom: true,
+				retries: 3,
+				auto_retry: true,
 				run: function () {
 					this.getHtml(link.link, function(err, $) {
 						if (!err) {
-							if ($('title')) {
-								var title = $('title').fulltext
+							if ($('title').length != 0) {
+								var title = $('title').fulltext;
 								link.title = title;
 								link.save();
 							}
@@ -721,12 +727,17 @@ app.get('/api/bookmarklet_add', function(req, res, next){
 			var job = new nodeio.Job({
 				input: false,
 				output: false,
+				jsdom: true,
+				retries: 3,
+				auto_retry: true,
 				run: function () {
 					this.getHtml(link.link, function(err, $) {
 						if (!err) {
-							var title = $('title').fulltext
-							link.title = title;
-							link.save();
+							if ($('title').length != 0) {
+								var title = $('title').fulltext;
+								link.title = title;
+								link.save();
+							}
 						}
 					});
 				}

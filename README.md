@@ -39,3 +39,4 @@ You can run linkr in production with the following command:
 ## Issues ##
 
 - Better error handling in the UI
+- Handle errors in Node.io when trying to scrape a site which doesn't have a title tag.  Currently the errors just cause the node process to quit, taking down the entire site.
