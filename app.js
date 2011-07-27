@@ -693,7 +693,7 @@ app.post('/api/link', function(req, res, next){
 			// run the job
 			job.run();
 			
-			var response = populate_link_response(lnk);
+			var response = populate_link_response(link);
 			
 			res.header('Location',response.uri);
 			
