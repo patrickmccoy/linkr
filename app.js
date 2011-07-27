@@ -387,7 +387,7 @@ app.put('/account', auth, function(req, res){
 });
 
 app.get('/home', auth, function(req, res){
-	links.find({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'priority': -1, 'time': 1 } }).run(function(err, link){
+	links.find({ owner: req.session.security.user.id, read: 0 }).sort('priority', -1, 'time', 1).run(function(err, link){
 		if (!err) {
 			res.render('home', {
 				  title: 'linkr'
@@ -447,7 +447,7 @@ app.post('/home/add', auth, function(req, res){
 });
 
 app.get('/home/archive', auth, function(req, res){
-	links.find({ owner: req.session.security.user.id }, [], { sort: { 'time': -1 } }, function(err, link){
+	links.find({ owner: req.session.security.user.id }).sort('time', -1).run(function(err, link){
 		res.render('home', {
 			title: 'linkr | link archive'
 		  , links: link
@@ -572,7 +572,7 @@ app.all('/api/*', APIAuth, function(req, res, next){
 
 // return a list of all unread links for an authenticated user
 app.get('/api', function(req, res, next){
-	links.find({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'priority': -1, 'time': 1 } }).run(function(err, links){
+	links.find({ owner: req.session.security.user.id, read: 0 }).sort('priority', -1, 'time', 1).run(function(err, links){
 		if (!err && links) {
 			var response = { items: [], totalItems: links.length };
 			
@@ -592,7 +592,7 @@ app.get('/api', function(req, res, next){
 });
 
 app.get('/api/archive', function(req, res, next){
-	links.find({ owner: req.session.security.user.id }, [], { sort: { 'time': -1 } }).run(function(err, links){
+	links.find({ owner: req.session.security.user.id }).sort('time', -1).run(function(err, links){
 		if (!err && links) {
 			var response = { items: [], totalItems: links.length };
 			
@@ -612,10 +612,10 @@ app.get('/api/archive', function(req, res, next){
 
 // get the latest unread link for the user
 app.get('/api/latest', function(req, res, next){
-	links.findOne({ owner: req.session.security.user.id, read: 0 }, [], { sort: { 'priority': -1, 'time': 1 } }).run(function(err, lnk){
+	links.find({ owner: req.session.security.user.id, read: 0 },[]).sort('priority', -1, 'time', 1).limit(1).run(function(err, links){
 		if (!err) {
-			if (lnk) {
-				var response = populate_link_response(lnk);
+			if (links) {
+				var response = populate_link_response(links[0]);
 				
 				if (req.query.callback) {
 					res.send(req.query.callback+'('+JSON.stringify(response)+')');

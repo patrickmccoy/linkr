@@ -29,10 +29,12 @@ var Link = new Schema({
   , link 	: { type: String, validate: [isValidURL, 'a link is required'] }
   , title	: { type: String }
   , read 	: { type: Number, default: 0 }
-  , readTime: { type: Date, default: Date.now }
-  , time 	: { type: Date, default: Date.now }
+  , priority: { type: Number, default: 0 }
   , visibility 	: { type: String, default: 'private' }
-  , priority	: { type: Number, default: 0, min: 0, max: 1000 }
+  , time 	: { type: Date, default: Date.now }
+  , readTime: { type: Date, default: Date.now }
+  
+
 });
 
 Link.virtual('id')
