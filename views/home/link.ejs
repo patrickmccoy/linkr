@@ -1,4 +1,4 @@
-<div class="link">
+<div class="link" id="<%= link.id %>">
 	<span class="time"><%= link.niceTime %></span> <span class="link">
 		<a class="linkr_link" href="/link/<%= link.id %>" target="_blank">
 			<% if (link.title) { %>
@@ -8,4 +8,5 @@
 			<% } %>
 		</a>
 	</span>
+	<span class="sortable_handle ui-icon ui-icon-arrowthick-2-n-s"></span>
 </div>

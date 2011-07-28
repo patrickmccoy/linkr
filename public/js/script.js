@@ -192,10 +192,11 @@ var showAddLink = function() {
  * Render a link from JSON and return a jQuery object of that rendered link for placing on the page
  */
 var renderLink = function(data) {
-	var container = $('<div>').addClass('link'),
+	var container = $('<div>').attr('id',data.id).addClass('link'),
 		time = $('<span>').addClass('time'),
 		link_container = $('<span>').addClass('link'),
-		link = $('<a>').addClass('linkr_link').attr('target','_blank');
+		link = $('<a>').addClass('linkr_link').attr('target','_blank'),
+		handle = $('<span>').addClass('sortable_handle').addClass('ui-icon').addClass('ui-icon-arrowthick-2-n-s');
 
 	time.html(niceTime(data.created));
 	
@@ -207,7 +208,7 @@ var renderLink = function(data) {
 	link.attr('href', data.url).html(link_html);
 	
 	/* Put it all together */
-	link_container.append(link);
+	link_container.append(link).append(handle);
 	container.append(time)
 			 .append(link_container);
 	
@@ -270,6 +271,51 @@ $('a#bookmarklet_show').click(function(e){
 	$('div#bookmarklets').toggle(400);
 });
 
+
+
+/**
+ * Sortable link order on /home
+ */
+
+var get_link_position = function (element) {
+	var number_of_header_nodes = 1,
+		position = 0,
+		count = 0,
+		curr = element,
+		prev = element.prev();
+		
+	while (prev.length != 0) {
+		curr = prev;
+		prev = prev.prev();
+		count++;
+	}
+	
+	// calculate the position
+	position = count - number_of_header_nodes;
+	
+	return position;
+}
+
+// wrap it all in an if to make sure we are only doing this on the right page
+if (window.location.pathname == '/home') {
+	$('#links').sortable({    containment: 'parent'
+							, handle: 'span.sortable_handle'
+							, items: 'div.link'
+							, revert: true
+							, update: function (e, ui) {
+								var position = get_link_position(ui.item),
+									id = ui.item.attr('id');
+								
+								$.ajax({
+									url: '/api/link/'+id+'/position',
+									data: { position: position },
+									dataType: 'json',
+									type: 'POST'
+								});
+							}
+						 });
+	$('div.link').disableSelection();
+}
 
 
 

@@ -514,10 +514,33 @@ var APILoadUser = function(req, res, next) {
 	});
 }
 
+var APILoadLink = function(req, res, next) {
+	if (req.params.id) {
+		
+		links.findById(req.params.id, function(err, link) {
+			if (!err) {
+				if (link) {
+					req.link = link;
+					next();
+					
+				} else {
+					next(new APINotFound({ code: 404, txt: 'No content at this URI endpoint' }));
+				}
+			} else {
+				next(new APIError('API Request Failed'));
+			}
+		});
+	} else {
+		next(new APIError('You must provide a link id for this endpoint!'));
+	}
+}
+
+
 // return a JSON object populated with the properly formatted link fields for an API response
 var populate_link_response = function(link) {
 	var response = {};
 	
+	response.id = link.id;
 	response.owner = '/api/user/'+link.owner;
 	response.url = link.link;
 	response.title = link.title;
@@ -665,6 +688,64 @@ app.get('/api/link/:id', function(req, res, next){
 			next(new APIError('API Request Failed'));
 		}
 	});
+});
+
+app.post('/api/link/:id/position', APILoadLink, function(req, res, next) {
+	if (req.link.owner == req.session.security.user.id) {
+		var position = req.body.position;
+		
+		links.find({ owner: req.session.security.user.id, read: 0 },[]).sort('priority', -1, 'time', 1).skip(position).limit(1).run(function(err, link){
+			if (!err) {
+				if (link) {
+					var new_priority = link[0].priority + 1;
+					
+					req.link.priority = new_priority;
+					
+					// make sure the links above are higher priority...
+					if (position != 0) {
+						links.find({ owner: req.session.security.user.id, read: 0 },[]).sort('priority', -1, 'time', 1).limit(position).run(function(err, link){
+							if (!err) {
+								if (link) {
+									link.forEach(function(lnk){
+										if (lnk.priority <= new_priority) {
+											// increase the priority of the link
+											lnk.priority = new_priority + 1;
+											new_priority += 2;
+											lnk.save();
+										}
+									});
+								}
+							}
+						});
+					}
+					
+					
+					req.link.save(function(err){
+						if (!err) {
+							var response = populate_link_response(req.link);
+							
+							if (req.query.callback) {
+								res.send(req.query.callback+'('+JSON.stringify(response)+')');
+							} else {
+								res.send(JSON.stringify(response));
+							}
+						}
+					});
+				
+				} else {
+					var response = { user: req.session.security.user.id, error: { code: 204, type: 'NoContent', msg: 'You have no content to display!' } };
+					if (req.query.callback) {
+						res.send(req.query.callback+'('+JSON.stringify(response)+')',200);
+					} else {
+						res.send(JSON.stringify(response),200);
+					}
+				}
+			}
+		});
+		
+	} else {
+		next(new APIAuthError({ code: 403, txt: 'You are forbidden from seeing this content' }));
+	}
 });
 
 // create a new link

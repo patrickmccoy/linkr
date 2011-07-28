@@ -74,3 +74,9 @@ div#bookmarklets {
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
 }
+
+
+.sortable_handle {
+	float: right;
+}
+
