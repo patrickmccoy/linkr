@@ -21,7 +21,7 @@ Once you have installed NodeJS, NPM and MongoDB, in the directory where you clon
 
 To run the link app, start the server by typing the following command in the linkr directory:
 
-	node app.js
+	node server.js
 
 If everything went ok (it should if you followed the install), you will see the following printed to the screen:
 
@@ -33,7 +33,7 @@ Now you can point your browser to [http://localhost:3001](http://localhost:3001)
 
 You can run linkr in production with the following command:
 
-	NODE_ENV=production node app.js
+	NODE_ENV=production node server.js
 	
 
 ## Issues ##

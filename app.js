@@ -3,8 +3,7 @@
  */
 
 var host = 'localhost',
-    port = 3001,
-    show_banner = true;
+    port = 3001;
 
 
 /**
@@ -57,7 +56,6 @@ app.configure('development', function(){
 });
 
 app.configure('production', function(){
-	show_banner = false;
 });
 
 
@@ -842,7 +840,7 @@ app.get('/api/bookmarklet_add', function(req, res, next){
 });
 
 
-/** END LINK ENDPOINTS */
+/** END OF LINK ENDPOINTS */
 
 /**
  * User endpoints
@@ -860,7 +858,7 @@ app.get('/api/user/:id?', APILoadUser, APIRestrictTo('admin'), function(req, res
 
 
 
-/** END USER ENDPOINTS */
+/** END OF USER ENDPOINTS */
 
 
 /**
@@ -871,7 +869,8 @@ app.all('*', function(req, res) {
 	throw new NotFound('Page not found.');
 });
 
-app.listen(port,host);
-if (show_banner) {
-	console.log("Express server listening on port %d", app.address().port);
-}
+/**
+ * Export the app for use in Cluster
+ */
+module.exports = app;
+
