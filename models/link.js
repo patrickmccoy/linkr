@@ -1,4 +1,6 @@
 var mongoose = require('mongoose');
+
+var nodeio = require('node.io');
 	
 /* database modeling */
 
@@ -27,7 +29,7 @@ var Schema = mongoose.Schema
 var Link = new Schema({
 	owner 	: { type: ObjectId, validate: [validatePresence, 'an owner is required'] }
   , link 	: { type: String, validate: [isValidURL, 'a link is required'] }
-  , title	: { type: String }
+  , title	: { type: String, default: '' }
   , read 	: { type: Number, default: 0 }
   , priority: { type: Number, default: 0 }
   , visibility 	: { type: String, default: 'private' }
@@ -72,6 +74,43 @@ Link.virtual('niceTime').get(function(){
 	return month+'/'+day+'/'+year+' '+hour+':'+min+' '+meridian;
 });
 
+
+// Get the title from Node.io
+Link.pre('save', true, function(next, done) {
+	
+	if (this.title == '') {
+		var self = this;
+		
+		var job = new nodeio.Job({
+			input: false,
+			output: false,
+			jsdom: true,
+			retries: 3,
+			auto_retry: true,
+			run: function () {
+				this.getHtml(self.link, function(err, $) {
+					if (!err) {
+						if ($('title')) {
+							var title = $('title').fulltext;
+							
+							self.title = title;
+							done();
+						}
+					}
+				});
+			}
+		});
+		
+		
+		// run the job
+		job.run();
+		next();
+		
+	} else {
+		next();
+		done();
+	}
+});
 
 mongoose.model('Link', Link);
 

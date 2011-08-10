@@ -19,7 +19,7 @@ var db = mongoose.connect('mongodb://localhost/linkr');
 
 var app = module.exports = express.createServer();
 
-var nodeio = require('node.io');
+
 
 
 /**
@@ -416,29 +416,6 @@ app.post('/home/add', auth, function(req, res){
 	
 	link.save(function(err){
 		if (!err) {
-			// create the job to scrape the title
-			var job = new nodeio.Job({
-				input: false,
-				output: false,
-				jsdom: true,
-				retries: 3,
-				auto_retry: true,
-				run: function () {
-					this.getHtml(link.link, function(err, $) {
-						if (!err) {
-							if ($('title')) {
-								var title = $('title').fulltext;
-								link.title = title;
-								link.save();
-							}
-						}
-					});
-				}
-			});
-			
-			// run the job
-			job.run();
-			
 			res.redirect('/home');
 		} else {
 			throw new Error('Link Save Error!');
@@ -755,29 +732,6 @@ app.post('/api/link', function(req, res, next){
 		
 	link.save(function(err){
 		if (!err) {
-			// create the job to scrape the title
-			var job = new nodeio.Job({
-				input: false,
-				output: false,
-				jsdom: true,
-				retries: 3,
-				auto_retry: true,
-				run: function () {
-					this.getHtml(link.link, function(err, $) {
-						if (!err) {
-							if ($('title').length != 0) {
-								var title = $('title').fulltext;
-								link.title = title;
-								link.save();
-							}
-						}
-					});
-				}
-			});
-			
-			// run the job
-			job.run();
-			
 			var response = populate_link_response(link);
 			
 			res.header('Location',response.uri);
@@ -802,29 +756,6 @@ app.get('/api/bookmarklet_add', function(req, res, next){
 		
 	link.save(function(err){
 		if (!err) {
-			// create the job to scrape the title
-			var job = new nodeio.Job({
-				input: false,
-				output: false,
-				jsdom: true,
-				retries: 3,
-				auto_retry: true,
-				run: function () {
-					this.getHtml(link.link, function(err, $) {
-						if (!err) {
-							if ($('title').length != 0) {
-								var title = $('title').fulltext;
-								link.title = title;
-								link.save();
-							}
-						}
-					});
-				}
-			});
-			
-			// run the job
-			job.run();
-			
 			var response = populate_link_response(link);
 			res.header('Location',response.uri);
 			
