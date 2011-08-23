@@ -78,7 +78,7 @@ Link.virtual('niceTime').get(function(){
 // Get the title from Node.io
 Link.pre('save', true, function(next, done) {
 	
-	if (this.title == '') {
+	if (this.isNew) {
 		var self = this;
 		
 		var job = new nodeio.Job({
