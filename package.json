@@ -7,10 +7,8 @@
   	, "express": ">=2.4.3"
   	, "connect-redis": ">=1.0.6"
     , "ejs": ">= 0.0.1"
-    , "mongoose": ">=1.3.7"
-    , "hash": ">=0.06.0"
-    , "joose": ">=3.18.0"
-    , "joosex-namespace-depended": ">=0.16.0"
+    , "mongoose": ">=2.3.0"
+    , "mhash": ">=0.1.1"
     , "node.io": ">=0.3.3"
   }
 }

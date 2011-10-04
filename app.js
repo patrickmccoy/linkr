@@ -286,7 +286,7 @@ app.post('/login', function(req, res){
 				security.user.id = user.id;
 				security.status = 'OK';
 				security.role = user.role;
-			
+				
 				req.session.security = security;
 				
 				if (req.body.remember_me) {
@@ -307,7 +307,9 @@ app.post('/login', function(req, res){
 			} else {
 				res.redirect('/login');
 			}
-		} else {
+		} else if (err) {
+    		throw new Error('Database error');
+    	} else {
 			res.redirect('/logout');
 		}
 
@@ -385,13 +387,15 @@ app.put('/account', auth, function(req, res){
 });
 
 app.get('/home', auth, function(req, res){
-	links.find({ owner: req.session.security.user.id, read: 0 }).sort('priority', -1, 'time', 1).run(function(err, link){
-		if (!err) {
+	links.find().where('owner', req.session.security.user.id).where('read', false).desc('priority').asc('time').run(function(err, link){
+		if (!err && link) {
 			res.render('home', {
 				  title: 'linkr'
 				, links: link
 			});
-		} else {
+		} else if (err) {
+    		throw new Error('Database error');
+    	} else {
 			var link = [];
 			res.render('home', {
 				  title: 'linkr'
@@ -436,7 +440,7 @@ app.get('/home/archive', auth, function(req, res){
 app.get('/link/:id', auth, function(req, res){
 	links.findById(req.params.id, function(err, lnk){
 		if (!err && lnk && (lnk.owner == req.session.security.user.id)) {
-			lnk.read = 1;
+			lnk.read = true;
 			lnk.readTime = new Date();
 			lnk.save(function(err){
 				if (!err) {
@@ -573,7 +577,7 @@ app.all('/api/*', APIAuth, function(req, res, next){
 
 // return a list of all unread links for an authenticated user
 app.get('/api', function(req, res, next){
-	links.find({ owner: req.session.security.user.id, read: 0 }).sort('priority', -1, 'time', 1).run(function(err, links){
+	links.find().where('owner', req.session.security.user.id).where('read', false).desc('priority').asc('time').run(function(err, links){
 		if (!err && links) {
 			var response = { items: [], totalItems: links.length };
 			
@@ -613,7 +617,7 @@ app.get('/api/archive', function(req, res, next){
 
 // get the latest unread link for the user
 app.get('/api/latest', function(req, res, next){
-	links.find({ owner: req.session.security.user.id, read: 0 },[]).sort('priority', -1, 'time', 1).limit(1).run(function(err, links){
+	links.find({ owner: req.session.security.user.id, read: false },[]).sort('priority', -1, 'time', 1).limit(1).run(function(err, links){
 		if (!err) {
 			if (links) {
 				var response = populate_link_response(links[0]);
@@ -669,7 +673,7 @@ app.post('/api/link/:id/position', APILoadLink, function(req, res, next) {
 	if (req.link.owner == req.session.security.user.id) {
 		var position = req.body.position;
 		
-		links.find({ owner: req.session.security.user.id, read: 0 },[]).sort('priority', -1, 'time', 1).skip(position).limit(1).run(function(err, link){
+		links.find({ owner: req.session.security.user.id, read: false },[]).sort('priority', -1, 'time', 1).skip(position).limit(1).run(function(err, link){
 			if (!err) {
 				if (link) {
 					var new_priority = link[0].priority + 1;
@@ -678,7 +682,7 @@ app.post('/api/link/:id/position', APILoadLink, function(req, res, next) {
 					
 					// make sure the links above are higher priority...
 					if (position != 0) {
-						links.find({ owner: req.session.security.user.id, read: 0 },[]).sort('priority', -1, 'time', 1).limit(position).run(function(err, link){
+						links.find({ owner: req.session.security.user.id, read: false },[]).sort('priority', -1, 'time', 1).limit(position).run(function(err, link){
 							if (!err) {
 								if (link) {
 									link.forEach(function(lnk){

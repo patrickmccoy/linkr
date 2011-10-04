@@ -1,6 +1,4 @@
-require('joose');
-require('joosex-namespace-depended');
-require('hash');
+var Hash = require("mhash").hash
 
 var mongoose = require('mongoose');
 	
@@ -57,7 +55,7 @@ User.virtual('password')
 	.get(function() { return this._password; });
 
 User.method('encryptPassword', function(password) {
-	return Hash.rmd160(this.salt+password);
+	return Hash('ripemd160',this.salt+password);
 });
 
 User.method('authenticate', function(plainText) {

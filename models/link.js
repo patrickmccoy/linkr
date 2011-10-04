@@ -30,7 +30,7 @@ var Link = new Schema({
 	owner 	: { type: ObjectId, validate: [validatePresence, 'an owner is required'] }
   , link 	: { type: String, validate: [isValidURL, 'a link is required'] }
   , title	: { type: String, default: '' }
-  , read 	: { type: Number, default: 0 }
+  , read 	: { type: Boolean, default: false }
   , priority: { type: Number, default: 0 }
   , visibility 	: { type: String, default: 'private' }
   , time 	: { type: Date, default: Date.now }
