@@ -1,5 +1,26 @@
-<h1><%= title %></h1>
-<p>Welcome to <%= title %></p>
-<p><%= title %> is a service for saving links for reading later.  You can save as many links as you want and then read them at a more convenient time later!  <%= title %> also allows for easy sharing of links with your friends!</p>
-<p><a href="/login" >Login here</a></p>
-<p>Don't have an account? <a href="/create" >Create one!</a></p>
+<div class="topbar">
+    <div class="fill">
+        <div class="container">
+            <a class="brand" href="/"><%= title %></a>
+            <ul class="nav">
+                <li class="active"><a href="/">Home</a></li>
+                <li><a href="/create">Create Account</a></li>
+                <li><a href="/login">Login</a></li>
+            </ul>
+            <form action="/login" method="post" class="pull-right">
+                <input class="input-small" type="email" name="email" placeholder="Email">
+                <input class="input-small" type="password" name="password" placeholder="Password">
+                <button class="btn" type="submit">Sign in</button>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="content">
+    <div class="row">
+        <div class="span 16">
+            <h4>Welcome to <%= title %></h4>
+            <p><%= title %> is a service for saving links for reading later.  You can save as many links as you want and then read them at a more convenient time later!  <%= title %> also allows for easy sharing of links with your friends!</p>
+            <p><span class="label notice" >Don't have an account?</span> <a href="/create" >Create one!</a></p>
+        </div>
+    </div>
+</div>
