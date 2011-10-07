@@ -513,38 +513,23 @@ var APILoadLink = function(req, res, next) {
 	}
 }
 
-
-// return a JSON object populated with the properly formatted link fields for an API response
-var populate_link_response = function(link) {
-	var response = {};
-	
-	response.id = link.id;
-	response.owner = '/api/user/'+link.owner;
-	response.url = link.link;
-	response.title = link.title;
-	response.read = link.read;
-	response.priority = link.priority;
-	response.created = Math.floor(link.time.getTime()/1000);
-	response.readTime = Math.floor(link.readTime.getTime()/1000);
-	response.uri = '/api/link/'+link.id;
-	response.readLink = '/link/'+link.id;
-	
-	return response;
-}
-
-// return a JSON object populated with the properly formatted user fields for an API response
-var populate_user_response = function(user) {
-	var response = {};
-	
-	response.id = user.id;
-	response.email = user.email;
-	response.name = {	first: user.first,
-						last: user.last,
-						full: user.name
-					 };
-	response.uri = '/api/user/'+user.id;
-	
-	return response;
+// send the API Response
+var API_Send  = function(req, res, data, code) {
+    // default values
+    code = code || 200;
+    
+    // the response depends on the callback query param, if callback is specified, then we return a JSONp response
+    if (req.query.callback) {
+        // set the content type
+		res.header('Content-Type', 'application/x-javascript; charset=utf-8');
+		// send the data
+		res.send(req.query.callback+'('+JSON.stringify(data)+')', code);
+	} else {
+	    // set the content type
+		res.header('Content-Type', 'application/json; charset=utf-8');
+		// send the data
+		res.send(JSON.stringify(data), code);
+	}
 }
 
 /**
@@ -554,19 +539,9 @@ var populate_user_response = function(user) {
 
 // Authentication and default content-type header for all api requests
 app.all('/api', APIAuth, function(req, res, next){
-	if (req.query.callback) {
-		res.header('Content-Type', 'application/x-javascript; charset=utf-8');
-	} else {
-		res.header('Content-Type', 'application/json; charset=utf-8');
-	}
 	next();
 });
 app.all('/api/*', APIAuth, function(req, res, next){
-	if (req.query.callback) {
-		res.header('Content-Type', 'application/x-javascript; charset=utf-8');
-	} else {
-		res.header('Content-Type', 'application/json; charset=utf-8');
-	}
 	next();
 });
 
@@ -583,11 +558,8 @@ app.get('/api', function(req, res, next){
 			links.forEach(function(lnk){
 				response.items.push(lnk.serialize());
 			});
-			if (req.query.callback) {
-				res.send(req.query.callback+'('+JSON.stringify(response)+')');
-			} else {
-				res.send(JSON.stringify(response));
-			}
+			
+			API_Send(req, res, response);
 			
 		} else {
 			next(new APIError('API Request Failed'));
@@ -603,11 +575,8 @@ app.get('/api/archive', function(req, res, next){
 			links.forEach(function(lnk){
 				response.items.push(lnk.serialize());
 			});
-			if (req.query.callback) {
-				res.send(req.query.callback+'('+JSON.stringify(response)+')');
-			} else {
-				res.send(JSON.stringify(response));
-			}
+			
+			API_Send(req, res, response);
 		} else {
 			next(new APIError('API Request Failed'));
 		}
@@ -621,19 +590,11 @@ app.get('/api/latest', function(req, res, next){
 			if (links) {
 				var response = links[0].serialize();
 				
-				if (req.query.callback) {
-					res.send(req.query.callback+'('+JSON.stringify(response)+')');
-				} else {
-					res.send(JSON.stringify(response));
-				}
+				API_Send(req, res, response);
 				
 			} else {
 				var response = { user: req.session.security.user.id, error: { code: 204, type: 'NoContent', msg: 'You have no content to display!' } };
-				if (req.query.callback) {
-					res.send(req.query.callback+'('+JSON.stringify(response)+')',200);
-				} else {
-					res.send(JSON.stringify(response),200);
-				}
+				API_Send(req, res, response);
 			}
 			
 		} else {
@@ -649,11 +610,7 @@ app.get('/api/link/:id', function(req, res, next){
 				if (lnk.owner == req.session.security.user.id) {
 					var response = lnk.serialize();
 					
-					if (req.query.callback) {
-						res.send(req.query.callback+'('+JSON.stringify(response)+')');
-					} else {
-						res.send(JSON.stringify(response));
-					}
+					API_Send(req, res, response);
 					
 				} else {
 					next(new APIAuthError({ code: 403, txt: 'You are forbidden from seeing this content' }));
@@ -712,11 +669,7 @@ app.post('/api/link/:id/position', APILoadLink, function(req, res, next) {
 				
 				} else {
 					var response = { user: req.session.security.user.id, error: { code: 204, type: 'NoContent', msg: 'You have no content to display!' } };
-					if (req.query.callback) {
-						res.send(req.query.callback+'('+JSON.stringify(response)+')',200);
-					} else {
-						res.send(JSON.stringify(response),200);
-					}
+					API_Send(req, res, response);
 				}
 			}
 		});
@@ -739,11 +692,7 @@ app.post('/api/link', function(req, res, next){
 			
 			res.header('Location',response.uri);
 			
-			if (req.query.callback) {
-				res.send(req.query.callback+'('+JSON.stringify(response)+')',201);
-			} else {
-				res.send(JSON.stringify(response),201);
-			}
+			API_Send(req, res, response, 201);
 		} else {
 			throw new APIError('Link Save Error!');
 		}
@@ -762,11 +711,7 @@ app.get('/api/bookmarklet_add', function(req, res, next){
 			var response = link.serialize();
 			res.header('Location',response.uri);
 			
-			if (req.query.callback) {
-				res.send(req.query.callback+'('+JSON.stringify(response)+')',201);
-			} else {
-				res.send(JSON.stringify(response),201);
-			}
+			API_Send(req, res, response, 201);
 		} else {
 			throw new APIError('Link Save Error!');
 		}
@@ -782,11 +727,7 @@ app.get('/api/bookmarklet_add', function(req, res, next){
 app.get('/api/user/:id?', APILoadUser, APIRestrictTo('admin'), function(req, res, next) {
 	var response = req.user.serialize();
 	
-	if (req.query.callback) {
-		res.send(req.query.callback+'('+JSON.stringify(response)+')',200);
-	} else {
-		res.send(JSON.stringify(response),200);
-	}
+	API_Send(req, res, response);
 });
 
 
