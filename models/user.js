@@ -55,7 +55,7 @@ User.virtual('password')
 	.get(function() { return this._password; });
 
 User.method('encryptPassword', function(password) {
-	return Hash('ripemd160',this.salt+password);
+    return Hash('ripemd160',this.salt+password);
 });
 
 User.method('authenticate', function(plainText) {
@@ -63,7 +63,7 @@ User.method('authenticate', function(plainText) {
 });
 
 User.method('makeSalt', function() {
-	var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split(''),
+	var chars = '!@#$%^&*()_-+=~?0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split(''),
     	length = 10,
     	str = '';
     	
@@ -71,6 +71,20 @@ User.method('makeSalt', function() {
         str += chars[Math.floor(Math.random() * chars.length)];
     }
     return str;
+});
+
+User.method('serialize', function() {
+    var response = {};
+	
+	response.id = this.id;
+	response.email = this.email;
+	response.name = {	first: this.first,
+						last: this.last,
+						full: this.name
+					 };
+	response.uri = '/api/user/'+this.id;
+	
+	return response;
 });
 
 mongoose.model('User', User);

@@ -74,6 +74,23 @@ Link.virtual('niceTime').get(function(){
 	return month+'/'+day+'/'+year+' '+hour+':'+min+' '+meridian;
 });
 
+Link.method('serialize', function() {
+    var response = {};
+	
+	response.id = this.id;
+	response.owner = '/api/user/'+this.owner;
+	response.url = this.link;
+	response.title = this.title;
+	response.read = this.read;
+	response.priority = this.priority;
+	response.created = Math.floor(this.time.getTime()/1000);
+	response.readTime = Math.floor(this.readTime.getTime()/1000);
+	response.uri = '/api/link/'+this.id;
+	response.readLink = '/link/'+this.id;
+	
+	return response;
+});
+
 
 // Get the title from Node.io
 Link.pre('save', true, function(next, done) {
@@ -85,7 +102,7 @@ Link.pre('save', true, function(next, done) {
 			input: false,
 			output: false,
 			jsdom: true,
-			retries: 3,
+			retries: 1,
 			auto_retry: true,
 			run: function () {
 				this.getHtml(self.link, function(err, $) {
@@ -95,7 +112,11 @@ Link.pre('save', true, function(next, done) {
 							
 							self.title = title;
 							done();
+						} else {
+						    done();
 						}
+					} else {
+					    done();
 					}
 				});
 			}

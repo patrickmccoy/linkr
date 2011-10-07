@@ -276,7 +276,7 @@ app.get('/login', function(req, res){
 });
 
 app.post('/login', function(req, res){
-	users.findOne({ email: req.body.email }, function(err, user){
+	users.findOne({ email: req.body.email }).run(function(err, user){
 		if (!err && user) {
 			
 			if (user.authenticate(req.body.password)) {
@@ -327,7 +327,7 @@ app.get('/logout', function(req, res){
  */
  
 app.get('/account', auth, function(req, res){
-	users.findById(req.session.security.user.id, function(err, user){
+	users.findById(req.session.security.user.id).run(function(err, user){
 		if (!err && user) {
 			res.render('account', {
 				title: 'linkr | edit account',
@@ -344,7 +344,7 @@ app.get('/account', auth, function(req, res){
 });
 
 app.put('/account', auth, function(req, res){
-	users.findById(req.session.security.user.id, function(err, user){
+	users.findById(req.session.security.user.id).run(function(err, user){
 		if (!err && user) {
 		
 			if (req.body.first != '' && (req.body.first != user.first)) {
@@ -364,7 +364,6 @@ app.put('/account', auth, function(req, res){
 			 	if (req.body.password == req.body.confirm) {
 					user.password = req.body.password;
 					req.flash('account','Password updated');
-					console.log('password updated');
 				} else {
 					req.flash('account','Your passwords must match');
 				}
@@ -429,7 +428,7 @@ app.post('/home/add', auth, function(req, res){
 });
 
 app.get('/home/archive', auth, function(req, res){
-	links.find({ owner: req.session.security.user.id }).sort('time', -1).run(function(err, link){
+	links.find().where('owner',req.session.security.user.id).sort('time', -1).run(function(err, link){
 		res.render('home', {
 			title: 'linkr | link archive'
 		  , links: link
@@ -478,7 +477,7 @@ var APIRestrictTo = function(role) {
 var APILoadUser = function(req, res, next) {
 	var user_id = (req.params.id) ? req.params.id : req.session.security.user.id;
 	
-	users.findById(user_id, function(err, user) {
+	users.findById(user_id).run(function(err, user) {
 		if (!err) {
 			if (user) {
 				req.user = user;
@@ -496,7 +495,7 @@ var APILoadUser = function(req, res, next) {
 var APILoadLink = function(req, res, next) {
 	if (req.params.id) {
 		
-		links.findById(req.params.id, function(err, link) {
+		links.findById(req.params.id).run(function(err, link) {
 			if (!err) {
 				if (link) {
 					req.link = link;
@@ -582,7 +581,7 @@ app.get('/api', function(req, res, next){
 			var response = { items: [], totalItems: links.length };
 			
 			links.forEach(function(lnk){
-				response.items.push(populate_link_response(lnk));
+				response.items.push(lnk.serialize());
 			});
 			if (req.query.callback) {
 				res.send(req.query.callback+'('+JSON.stringify(response)+')');
@@ -602,7 +601,7 @@ app.get('/api/archive', function(req, res, next){
 			var response = { items: [], totalItems: links.length };
 			
 			links.forEach(function(lnk){
-				response.items.push(populate_link_response(lnk));
+				response.items.push(lnk.serialize());
 			});
 			if (req.query.callback) {
 				res.send(req.query.callback+'('+JSON.stringify(response)+')');
@@ -620,7 +619,7 @@ app.get('/api/latest', function(req, res, next){
 	links.find({ owner: req.session.security.user.id, read: false },[]).sort('priority', -1, 'time', 1).limit(1).run(function(err, links){
 		if (!err) {
 			if (links) {
-				var response = populate_link_response(links[0]);
+				var response = links[0].serialize();
 				
 				if (req.query.callback) {
 					res.send(req.query.callback+'('+JSON.stringify(response)+')');
@@ -648,7 +647,7 @@ app.get('/api/link/:id', function(req, res, next){
 		if (!err) {
 			if (lnk){
 				if (lnk.owner == req.session.security.user.id) {
-					var response = populate_link_response(lnk);
+					var response = lnk.serialize();
 					
 					if (req.query.callback) {
 						res.send(req.query.callback+'('+JSON.stringify(response)+')');
@@ -701,7 +700,7 @@ app.post('/api/link/:id/position', APILoadLink, function(req, res, next) {
 					
 					req.link.save(function(err){
 						if (!err) {
-							var response = populate_link_response(req.link);
+							var response = req.link.serialize();
 							
 							if (req.query.callback) {
 								res.send(req.query.callback+'('+JSON.stringify(response)+')');
@@ -736,7 +735,7 @@ app.post('/api/link', function(req, res, next){
 		
 	link.save(function(err){
 		if (!err) {
-			var response = populate_link_response(link);
+			var response = link.serialize();
 			
 			res.header('Location',response.uri);
 			
@@ -760,7 +759,7 @@ app.get('/api/bookmarklet_add', function(req, res, next){
 		
 	link.save(function(err){
 		if (!err) {
-			var response = populate_link_response(link);
+			var response = link.serialize();
 			res.header('Location',response.uri);
 			
 			if (req.query.callback) {
@@ -781,7 +780,7 @@ app.get('/api/bookmarklet_add', function(req, res, next){
  * User endpoints
  */
 app.get('/api/user/:id?', APILoadUser, APIRestrictTo('admin'), function(req, res, next) {
-	var response = populate_user_response(req.user);
+	var response = req.user.serialize();
 	
 	if (req.query.callback) {
 		res.send(req.query.callback+'('+JSON.stringify(response)+')',200);
