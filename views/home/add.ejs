@@ -1,9 +1,51 @@
-<h1><%= title %></h1>
-
-<form id="add_link" action="/home/add" method="post">
-	<input type="hidden" name="_method" value="post">
-	<p>Add a link to read later:</p>
-	<p><label for="url">URL: </label><input type="url" name="url" id="url" required="required" placeholder="http://www.google.com"></p>
-	<p><input type="submit" name="submit" id="add_link_submit" value="Add link!"></p>
-</form>
+<div class="topbar">
+    <div class="fill">
+        <div class="container">
+            <a class="brand" href="/">linkr</a>
+            <ul class="nav">
+                <li>
+                    <a href="/home">Home</a>
+                </li>
+                <li class="active">
+                    <a id="add_link" href="/home/add">Add a link</a>
+                </li>
+                <li>
+                    <a href="/home/archive">Link Archive</a>
+                </li>
+                <li>
+                    <a href="/account">Account</a>
+                </li>
+                <li>
+                    <a href="/logout">Logout</a>
+                </li>
+            </ul>
+            <div class="pull-right">
+                <h3><a href="/home" >Welcome <%= user.name.first %>!</a></h3>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content">
+    <div class="row">
+        <div class="span 16">
+            <h3>Add a link to read later</h3>
+            <form id="add_link" action="/home/add" method="post">
+                <input type="hidden" name="_method" value="post">
+                <fieldset>
+                    <div class="clearfix">
+            		    <label for="url">URL:</label>
+            		    <div class="input">
+            		        <input class="xlarge" id="url" type="url" name="url" placeholder="http://www.google.com" required="required">
+            		    </div>
+            		</div>
+            		<div class="actions">
+            		    <button class="btn primary" type="submit">Add!</button>
+            		    <button class="btn default" type="button" onclick="window.location.pathname = '/home';">Cancel</button>
+            		</div>
+                </fieldset>
+            </form>
+            
+        </div>
+    </div>
+</div>
 	

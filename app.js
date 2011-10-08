@@ -433,8 +433,9 @@ app.get('/home', auth, function(req, res){
 
 app.get('/home/add', auth, function(req, res){
 	res.render('home/add', {
-		title: 'linkr | add',
-		path: req.route.path
+		  title: 'linkr | add'
+		, user: req.session.security.user
+		, path: req.route.path
 	});
 });
 

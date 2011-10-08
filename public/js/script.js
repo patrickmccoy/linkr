@@ -176,11 +176,11 @@ var addLink = function(form, modal) {
  * Render a link from JSON and return a jQuery object of that rendered link for placing on the page
  */
 var renderLink = function(data) {
-	var container = $('<div>').attr('id',data.id).addClass('link'),
-		time = $('<span>').addClass('time'),
-		link_container = $('<span>').addClass('link'),
+	var container = $('<div>').attr('id',data.id).addClass('row'),
+		time = $('<span>').addClass('span3'),
+		link_container = $('<span>').addClass('span8'),
 		link = $('<a>').addClass('linkr_link').attr('target','_blank'),
-		handle = $('<span>').addClass('sortable_handle').addClass('ui-icon').addClass('ui-icon-arrowthick-2-n-s');
+		handle = $('<span>').addClass('pull-right').addClass('sortable_handle').addClass('ui-icon').addClass('ui-icon-arrowthick-2-n-s');
 
 	time.html(niceTime(data.created));
 	
@@ -192,15 +192,16 @@ var renderLink = function(data) {
 	link.attr('href', data.url).html(link_html);
 	
 	/* Put it all together */
-	link_container.append(link).append(handle);
+	link_container.append(link);
 	container.append(time)
-			 .append(link_container);
+			 .append(link_container)
+			 .append(handle);
 	
 	return container;
 }
 
 var addLinkToPage = function(renderedLink) {
-	var linkContainer = $('div#links'),
+	var linkContainer = $('div#links .span12'),
 		linkHeader = $('div#links_header');
 
 	if (window.location.pathname == '/home/archive') {
@@ -232,7 +233,7 @@ $('a.linkr_link').click(function(e){
 $('a#add_link').click(function(e){
 	e.preventDefault();
 	
-	/* open a new boxy with the add link form in it */
+	/* open a modal with the add link form in it */
 	$('#add_link_modal').modal({backdrop: true, keyboard: true});
 });
 
