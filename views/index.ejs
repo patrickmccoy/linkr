@@ -7,11 +7,17 @@
                 <li><a href="/create">Create Account</a></li>
                 <li><a href="/login">Login</a></li>
             </ul>
+            <% if (!user) { %>
             <form action="/login" method="post" class="pull-right">
                 <input class="input-small" type="email" name="email" placeholder="Email">
                 <input class="input-small" type="password" name="password" placeholder="Password">
                 <button class="btn" type="submit">Sign in</button>
             </form>
+            <% } else { %>
+            <div class="pull-right">
+                <h3><a href="/home" >Welcome <%= user.name.first %>!</a></h3>
+            </div>
+            <% } %>
         </div>
     </div>
 </div>
@@ -20,7 +26,16 @@
         <div class="span 16">
             <h4>Welcome to <%= title %></h4>
             <p><%= title %> is a service for saving links for reading later.  You can save as many links as you want and then read them at a more convenient time later!  <%= title %> also allows for easy sharing of links with your friends!</p>
-            <p><span class="label notice" >Don't have an account?</span> <a href="/create" >Create one!</a></p>
+            <% if (user) { %>
+            <div class="alert-message info">
+                <a class="close" href="#">x</a>
+                <p>Hey <%= user.name.first %>, you are already logged in!  <a href="/home" >Click here</a> to access your saved links!</p>
+            </div>
+            <% } else { %>
+            <div class="alert-message info">
+                <p>Don't have an account? <a href="/create" >Create one here!</a></p>
+            </div>
+            <% } %>
         </div>
     </div>
 </div>

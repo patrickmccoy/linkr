@@ -52,7 +52,7 @@ app.configure(function(){
 
 app.configure('development', function(){
 	
-	//app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 });
 
 app.configure('production', function(){
@@ -228,14 +228,26 @@ var restrictTo = function(role) {
 // Routes
 
 app.get('/', function(req, res){
+    var user = false;
+    if (req.session.security) {
+        user = req.session.security.user;
+    }
 	res.render('index', {
-		title: 'linkr'
+		  title: 'linkr'
+		, user: user
+		, path: req.route.path
 	});
 });
 
 app.get('/create', function(req, res){
+    var user = false;
+    if (req.session.security) {
+        user = req.session.security.user;
+    }
 	res.render('create', {
-		title: 'linkr | create'
+	 	  title: 'linkr | create'
+	 	, user: user
+		, path: req.route.path
 	});
 });
 
@@ -270,8 +282,14 @@ app.post('/create', function(req, res){
 });
 
 app.get('/login', function(req, res){
+    var user = false;
+    if (req.session.security) {
+        user = req.session.security.user;
+    }
 	res.render('login', {
-		title: 'linkr'
+		  title: 'linkr'
+		, user: user
+		, path: req.route.path
 	})
 });
 
@@ -283,7 +301,7 @@ app.post('/login', function(req, res){
 				// set the user in the request object
 				var security = {};
 				security.user = {};
-				security.user.id = user.id;
+				security.user = user.serialize();
 				security.status = 'OK';
 				security.role = user.role;
 				
@@ -331,8 +349,9 @@ app.get('/account', auth, function(req, res){
 		if (!err && user) {
 			res.render('account', {
 				title: 'linkr | edit account',
-				user: user,
-				notifications: req.flash('account')
+				user: req.session.security.user,
+				notifications: req.flash('account'),
+				path: req.route.path
 			});
 		} else if (err) {
 			throw new Error('Database error');
@@ -377,6 +396,8 @@ app.put('/account', auth, function(req, res){
 				}
 			});
 			
+			req.session.security.user = user.serialize();
+			
 		} else if (err) {
 			throw new Error('Database error');
 		} else {
@@ -391,6 +412,8 @@ app.get('/home', auth, function(req, res){
 			res.render('home', {
 				  title: 'linkr'
 				, links: link
+				, user: req.session.security.user
+				, path: req.route.path
 			});
 		} else if (err) {
     		throw new Error('Database error');
@@ -399,6 +422,8 @@ app.get('/home', auth, function(req, res){
 			res.render('home', {
 				  title: 'linkr'
 				, links: link
+				, user: req.session.security.user
+				, path: req.route.path
 			});
 		}
 		
@@ -408,7 +433,8 @@ app.get('/home', auth, function(req, res){
 
 app.get('/home/add', auth, function(req, res){
 	res.render('home/add', {
-		title: 'linkr | add'
+		title: 'linkr | add',
+		path: req.route.path
 	});
 });
 
@@ -432,6 +458,8 @@ app.get('/home/archive', auth, function(req, res){
 		res.render('home', {
 			title: 'linkr | link archive'
 		  , links: link
+		  , user: req.session.security.user
+		  , path: req.route.path
 		});
 	});
 });

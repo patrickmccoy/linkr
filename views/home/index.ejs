@@ -1,17 +1,87 @@
-<h1><%= title %></h1>
-<div id="nav">
-	<a href="/home">Home</a> | <a id="add_link" href="/home/add">Add a link</a> | <a id="archive" href="/home/archive">Link Archive</a> | <a id="bookmarklet_show" href="#">Bookmarklets</a> | <a id="account_link" href="/account">Account</a> | <a href="/logout">Logout</a>
+<div class="topbar">
+    <div class="fill">
+        <div class="container">
+            <a class="brand" href="/">linkr</a>
+            <ul class="nav">
+                <% if (path == '/home') { %>
+                <li class="active">
+                <% } else { %>
+                <li>
+                <% } %>
+                    <a href="/home">Home</a>
+                </li>
+                <li>
+                    <a id="add_link" href="/home/add">Add a link</a>
+                </li>
+                
+                <% if (path == '/home/archive') { %>
+                <li class="active">
+                <% } else { %>
+                <li>
+                <% } %>
+                    <a href="/home/archive">Link Archive</a>
+                </li>
+                
+                <li>
+                    <a href="/account">Account</a>
+                </li>
+                <li>
+                    <a href="/logout">Logout</a>
+                </li>
+            </ul>
+            <div class="pull-right">
+                <h3><a href="/home" >Welcome <%= user.name.first %>!</a></h3>
+            </div>
+        </div>
+    </div>
 </div>
-<div id="bookmarklets">
-	<p>Drag this bookmarklet to your bookmarks to add a page to linkr from anywhere: <a href="javascript:(function(){_add_link=document.createElement('SCRIPT');_add_link.type='text/javascript';_add_link.src='http://localhost:3001/js/add_link.js?';document.getElementsByTagName('head')[0].appendChild(_add_link);
-})();">Add to linkr</a></p>
-	<p>Drag this bookmarklet to your bookmarks to view your next saved linkr page: <a href="javascript:(function(){_get_link=document.createElement('SCRIPT');_get_link.type='text/javascript';_get_link.src='http://localhost:3001/js/get_link.js?';document.getElementsByTagName('head')[0].appendChild(_get_link);
-})();">View next linkr saved link</a></p>
-	<p><a href="http://en.wikipedia.org/wiki/Bookmarklet">Whats a Bookmarklet?</a></p>
+<div class="content">
+    <div class="row">
+        <div class="span 16">
+            <h4>Your Saved Links</h4>
+            <a class="btn default small" id="bookmarklet_show" href="#">Add Bookmarklets</a>
+            <div id="bookmarklets" style="display: none; ">
+            	<p>Drag this bookmarklet to your bookmarks to add a page to linkr from anywhere: <a class="btn default small" href="javascript:(function(){_add_link=document.createElement('SCRIPT');_add_link.type='text/javascript';_add_link.src='http://localhost:3001/js/add_link.js?';document.getElementsByTagName('head')[0].appendChild(_add_link);
+            })();">Add to linkr</a></p>
+            	<p>Drag this bookmarklet to your bookmarks to view your next saved linkr page: <a class="btn default small" href="javascript:(function(){_get_link=document.createElement('SCRIPT');_get_link.type='text/javascript';_get_link.src='http://localhost:3001/js/get_link.js?';document.getElementsByTagName('head')[0].appendChild(_get_link);
+            })();">View next linkr saved link</a></p>
+            	<p><a href="http://en.wikipedia.org/wiki/Bookmarklet">Whats a Bookmarklet?</a></p>
+            </div>
+            
+            <!-- Display the links -->
+            <div id="links" class="row">
+                <div class="span12">
+            	    <div id="links_header" class="row">
+                		<span class="span3"><h4>Time Added</h4></span> <span class="span9"><h4>Link</h4></span>
+                	</div>
+                	<%- partial('link', links) %>
+                </div>
+            </div>
+            
+        </div>
+    </div>
 </div>
-<div id="links">
-	<div id="links_header">
-		<span class="time">Time Added</span> <span class="link">Link</span>
-	</div>
-	<%- partial('link', links) %>
+
+<div id="add_link_modal" class="modal hide fade" style="display: none;">
+    <div class="modal-header">
+        <a href="#" class="close">x</a>
+        <h3>Add a link to read later</h3>
+    </div>
+    <div class="modal-body">
+        <form action="/home/add" method="post" id="add_link_form">
+            <input type="hidden" name="_method" value="put">
+            <fieldset>
+                <div class="clearfix">
+        		    <label for="url">URL:</label>
+        		    <div class="input">
+        		        <input class="xlarge" id="url" type="url" name="url" placeholder="http://www.google.com" required="required">
+        		    </div>
+        		</div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn primary" type="submit" onClick="addLink($('#add_link_form'), $('#add_link_modal'));">Add!</button>
+        <button class="btn default" type="button" onClick="$('#add_link_modal').modal('hide');">Close</button>
+    </div>
 </div>

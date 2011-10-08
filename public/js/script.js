@@ -143,8 +143,10 @@ var niceTime = function(timestamp) {
  * Trim the length of a link and add an elipsis if its over a specified length
  */ 
 var trimLinkLength = function(link_html) {
-	if (link_html.length > 100) {
-		link_html = link_html.substring(0,100)+'...';
+    var length = 75;
+    
+	if (link_html.length > length) {
+		link_html = link_html.substring(0,length)+'...';
 	}
 	return link_html;
 }
@@ -152,40 +154,22 @@ var trimLinkLength = function(link_html) {
 /**
  * Render and show a modal window with an add link form in it
  */
-var showAddLink = function() {
-
-	var form = $('<form>').attr('id','add_link_ajax'),
-		method = $('<input>').attr('type','hidden').attr('name','_method').val('post'),
-		title = $('<p>').html('Add a link to read later:'),
-		url_container = $('<p>').html('<label for="url">URL: </label>'),
-		url = $('<input>').attr('id','url').attr('type','url').attr('name','url').attr('required','required').attr('placeholder','http://www.google.com'),
-		hint = $('<p>').addClass('hint').html('Press ENTER to save your URL');
-		
-	url_container.append(url);
-	
-	form.append(method)
-		.append(title)
-		.append(url_container)
-		.append(hint);
-
-	/* add the submit functionality to the form */
-	form.submit(function(e){
-			e.preventDefault();
-			
-			$.ajax({
-				type: 'POST',
-				url: '/api/link',
-				data: $(this).serialize(),
-				success: function(data) {
-					var link = renderLink(data);
-					modal_add.hideAndUnload(addLinkToPage(link));
-				},
-				dataType: 'json'
-			});
+var addLink = function(form, modal) {
+	if (form.find('input#url').length) {
+		$.ajax({
+			type: 'POST',
+			dataType: 'json',
+			url: '/api/link',
+			data: form.serialize(),
+			beforeSend: function() {
+				modal.modal('hide');
+			},
+			success: function(data) {
+				var link = renderLink(data);
+				addLinkToPage(link);
+			}
 		});
-	
-	var modal_add = new Boxy(form, { title: 'Add a link', modal: true });
-
+    }
 }
 
 /**
@@ -238,7 +222,9 @@ $('a.linkr_link').click(function(e){
 	var container = $(this).parent().parent(),
 		location = $(this).attr('href');
 	
-	container.remove();
+	if (window.location.pathname == '/home') {
+	    container.remove();
+    }
 	window.open(location);
 	
 });
@@ -247,21 +233,7 @@ $('a#add_link').click(function(e){
 	e.preventDefault();
 	
 	/* open a new boxy with the add link form in it */
-	showAddLink();
-});
-
-$('form#add_link_ajax').submit(function(e){
-	e.preventDefault();
-	
-	$.ajax({
-		type: 'POST',
-		url: '/api/link',
-		data: $(this).serialize(),
-		success: function(data) {
-			window.location = '/home';
-		},
-		dataType: 'json'
-	});
+	$('#add_link_modal').modal({backdrop: true, keyboard: true});
 });
 
 // show the bookmarklets div

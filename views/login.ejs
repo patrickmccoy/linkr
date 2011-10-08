@@ -1,11 +1,73 @@
-<h1><%= title %></h1>
-<p><a href="/" >&lt;&lt; Home</a></p>
-<p>Login to <%= title %> to access your saved links here:</p>
-<form action="" method="post">
-	<p><label for="email">Email: </label><input type="text" name="email" id="email"></p>
-	<p><label for="password">Password: </label><input type="password" name="password" id="password"></p>
-	<p><label for="remember_me" >Remember Me: </label><input type="checkbox" name="remember_me" value="1" checked="checked" id="remember_me"></p>
-	<p><input type="submit" name="submit" value="Go!"></p>
-</form>
+<div class="topbar">
+    <div class="fill">
+        <div class="container">
+            <a class="brand" href="/"><%= title %></a>
+            <ul class="nav">
+                <li><a href="/">Home</a></li>
+                <li><a href="/create">Create Account</a></li>
+                <li class="active"><a href="/login">Login</a></li>
+            </ul>
+            <% if (!user) { %>
+            <form action="/login" method="post" class="pull-right">
+                <input class="input-small" type="email" name="email" placeholder="Email">
+                <input class="input-small" type="password" name="password" placeholder="Password">
+                <button class="btn" type="submit">Sign in</button>
+            </form>
+            <% } else { %>
+            <div class="pull-right">
+                <h3><a href="/home" >Welcome <%= user.name.first %>!</a></h3>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+<div class="content">
+    <div class="row">
+        <div class="span 16">
+            <h4>Login to your account</h4>
+            <p>Login to <%= title %> to access your saved links:</p>
+            
+            <% if (user) { %>
+            <div class="alert-message info">
+                <a class="close" href="#">x</a>
+                <p>Hey <%= user.name.first %>, you are already logged in!  <a href="/home" >Click here</a> to access your saved links!</p>
+            </div>
+            <% } else { %>
+            <div class="alert-message info">
+                <p>Don't have an account? <a href="/create" >Create one here!</a></p>
+            </div>
+            <% } %>
+            
+            <form action="/login" method="post">
+            	<input type="hidden" name="_method" value="post" >
+            	<fieldset>
 
-<p>Don't have an account? <a href="/create" >Create one!</a></p>
+            		<div class="clearfix">
+            		    <label for="email">Email:</label>
+            		    <div class="input">
+            		        <input class="xlarge" id="email" type="email" name="email" placeholder="you@gmail.com" required="required">
+            		    </div>
+            		</div>
+            		<div class="clearfix">
+            		    <label for="pass">Password:</label>
+            		    <div class="input">
+            		        <input class="xlarge" id="pass" type="password" name="password" required="required">
+            		    </div>
+            		</div>
+            		<div class="clearfix">
+            		    <label for="remember_me">Remember me:</label>
+            		    <div class="input">
+            		        <input class="xlarge" id="pass" type="checkbox" name="remember_me" value="1" checked="checked">
+            		    </div>
+            		</div>
+            		
+                        
+                    <div class="actions">
+            		    <button class="btn primary" type="submit">Go!</button>
+            		</div>
+            	</fieldset>
+            </form>
+            
+        </div>
+    </div>
+</div>

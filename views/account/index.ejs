@@ -1,21 +1,82 @@
-<h1><%= title %></h1>
-<div id="nav">
-	<a href="/home">Home</a> | <a id="archive" href="/home/archive">Link Archive</a> | <a id="account_link" href="/account">Account</a> | <a href="/logout">Logout</a>
+<div class="topbar">
+    <div class="fill">
+        <div class="container">
+            <a class="brand" href="/">linkr</a>
+            <ul class="nav">
+                <li>
+                    <a href="/home">Home</a>
+                </li>
+                <li>
+                    <a href="/home/archive">Link Archive</a>
+                </li>
+                
+                <li class="active">
+                    <a href="/account">Account</a>
+                </li>
+                <li>
+                    <a href="/logout">Logout</a>
+                </li>
+            </ul>
+            <div class="pull-right">
+                <h3><a href="/home" >Welcome <%= user.name.first %>!</a></h3>
+            </div>
+        </div>
+    </div>
 </div>
-<%- partial('notification', notifications) %>
-<div id="account">
-	<h4>Edit your account information:</h4>
-	<form action="/account" method="post">
-		<input type="hidden" name="_method" value="put" >
-	
-		<p><label>First Name:&nbsp;<input type="text" name="first" placeholder="Jon" required="required" value="<%- user.first %>"></label></p>
-		<p><label>Last Name:&nbsp;<input type="text" name="last" placeholder="Smith" required="required" value="<%- user.last %>"></label></p>
-		<p><label>Email:&nbsp;&nbsp;<input type="email" name="email" placeholder="you@gmail.com" required="required" value="<%- user.email %>"></label></p>
-		
-		<p>Only enter a password if you wish change your current one.</p>
-		<p><label>New password:&nbsp;<input type="password" name="password" ></label></p>
-		<p><label>Confirm Password:&nbsp;<input type="password" name="confirm" ></label></p>
-		
-		<p><input type="submit" value="Save"></p>
-	</form>
+<div class="content">
+    <div class="row">
+        <div class="span 16">
+            <h4>Account</h4>
+            <%- partial('notification', notifications) %>
+            
+            <div class="row" id="account">
+            	<form action="/account" method="post" autocomplete="off">
+            		<input type="hidden" name="_method" value="put" >
+                    <fieldset>
+                        <legend>Edit your personal info:</legend>
+            		    <div class="clearfix">
+                		    <label for="first">First Name:</label>
+                		    <div class="input">
+                		        <input id="first" class="xlarge" type="text" name="first" placeholder="Jon" required="required" value="<%- user.name.first %>">
+                		    </div>
+                		</div>
+                		<div class="clearfix">
+                		    <label for="last">Last Name:</label>
+                		    <div class="input">
+                		        <input id="last" class="xlarge" type="text" name="last" placeholder="Smith" required="required" value="<%- user.name.last %>">
+                		    </div>
+                		</div>
+                		<div class="clearfix">
+                		    <label for="email">Email:</label>
+                		    <div class="input">
+                		        <input id="email" class="xlarge" type="email" name="email" placeholder="you@gmail.com" required="required" value="<%- user.email %>">
+                		    </div>
+                		</div>
+                    </fieldset>
+                    <fieldset>
+            		    <legend><span class="label important">Only enter a password if you wish change your current one.</span></legend>
+                		<div class="clearfix">
+                		    <label for="password">Password:</label>
+                		    <div class="input">
+                		        <input id="password" class="xlarge" type="password" name="password" >
+                		    </div>
+                		</div>
+                		<div class="clearfix">
+                		    <label for="confirm">Confirm password:</label>
+                		    <div class="input">
+                		        <input id="confirm" class="xlarge" type="password" name="confirm" >
+                		    </div>
+                		</div>
+                	</fieldset>
+
+            		<div class="actions">
+            		    <button class="btn success" type="submit">Save</button>
+            		    <button class="btn danger" type="button" onclick="window.location.pathname = '/home';" >Cancel</button>
+            		</div>
+            	</form>
+            </div>
+            
+        </div>
+    </div>
 </div>
+

@@ -1,27 +1,44 @@
 <div class="topbar">
     <div class="fill">
         <div class="container">
-            <a class="brand" href="/"><%= title %></a>
+            <a class="brand" href="/">linkr</a>
             <ul class="nav">
                 <li><a href="/">Home</a></li>
                 <li class="active"><a href="/create">Create Account</a></li>
                 <li><a href="/login">Login</a></li>
             </ul>
+            <% if (!user) { %>
             <form action="/login" method="post" class="pull-right">
                 <input class="input-small" type="email" name="email" placeholder="Email">
                 <input class="input-small" type="password" name="password" placeholder="Password">
                 <button class="btn" type="submit">Sign in</button>
             </form>
+            <% } else { %>
+            <div class="pull-right">
+                <h3><a href="/home" >Welcome <%= user.name.first %>!</a></h3>
+            </div>
+            <% } %>
         </div>
     </div>
 </div>
 <div class="content">
     <div class="row">
         <div class="span 16">
-            <h4>Create <%= title %> account</h4>
+            <h4>Create linkr account</h4>
             <p>Creating an account allows you to save links for later, as well as share saved links with others!</p>
-            <p><span class="label notice">Already have an account?</span> <a class="btn small default" href="/login" >Login here!</a></p>
-            <form action="/create" method="post">
+            
+            <% if (user) { %>
+            <div class="alert-message info">
+                <a class="close" href="#">x</a>
+                <p>Hey <%= user.name.first %>, you already have an account!  <a href="/home" >Click here</a> to access your saved links!</p>
+            </div>
+            <% } else { %>
+            <div class="alert-message info">
+                <p>Already have an account? <a href="/login" >Login here!</a></p>
+            </div>
+            <% } %>
+            
+            <form action="/create" method="post" autocomplete="off">
             	<input type="hidden" name="_method" value="post" >
             	<fieldset>
 
