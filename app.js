@@ -264,7 +264,7 @@ app.post('/create', function(req, res){
 			if (!err) {
 				// set the session and redirect
 				var security = {};
-				security.user = user;
+				security.user = user.serialize();
 				security.status = 'OK';
 				security.role = user.role;
 			
