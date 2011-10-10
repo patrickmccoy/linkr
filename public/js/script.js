@@ -163,6 +163,7 @@ var addLink = function(form, modal) {
 			data: form.serialize(),
 			beforeSend: function() {
 				modal.modal('hide');
+				modal.find("input#url").val("");
 			},
 			success: function(data) {
 				var link = renderLink(data);
