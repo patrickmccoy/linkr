@@ -411,17 +411,14 @@ app.get('/home', auth, function(req, res){
 		if (!err && link) {
 			res.render('home', {
 				  title: 'linkr'
-				, links: link
 				, user: req.session.security.user
 				, path: req.route.path
 			});
 		} else if (err) {
     		throw new Error('Database error');
     	} else {
-			var link = [];
 			res.render('home', {
 				  title: 'linkr'
-				, links: link
 				, user: req.session.security.user
 				, path: req.route.path
 			});
