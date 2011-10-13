@@ -455,7 +455,6 @@ app.get('/home/archive', auth, function(req, res){
 	links.find().where('owner',req.session.security.user.id).sort('time', -1).run(function(err, link){
 		res.render('home', {
 			title: 'linkr | link archive'
-		  , links: link
 		  , user: req.session.security.user
 		  , path: req.route.path
 		});
