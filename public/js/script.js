@@ -192,6 +192,16 @@ var renderLink = function(data) {
 	
 	link.attr('href', data.url).html(link_html);
 	
+	link.click(function(e){
+    	e.preventDefault();
+
+    	if (window.location.pathname == '/home') {
+    	    container.remove();
+        }
+    	window.open(data.url);
+
+    });
+	
 	/* Put it all together */
 	link_container.append(link);
 	container.append(time)
@@ -213,23 +223,25 @@ var addLinkToPage = function(renderedLink) {
 	
 }
 
-$('a.linkr_link').each(function(i, link){
-	link_html  = trimLinkLength($(this).html());
-	$(this).html(link_html);
-});
+/**
+ * Fetch the links from the API and render them on the page
+ */
+var fetchAndRenderAllLinks = function(options) {
+    // default options
+    options.api_url = options.api_url || 'http://linkr.cc/api';
+    
+    $.ajax({
+          url: options.api_url 
+        , dataType: 'json'
+        , success: function(data) {
+            data.items.forEach(function(link){
+                addLinkToPage(renderLink(link));
+            });
+        }
+        
+    });
+}
 
-$('a.linkr_link').click(function(e){
-	e.preventDefault();
-	
-	var container = $(this).parent().parent(),
-		location = $(this).attr('href');
-	
-	if (window.location.pathname == '/home') {
-	    container.remove();
-    }
-	window.open(location);
-	
-});
 
 $('a#add_link').click(function(e){
 	e.preventDefault();
@@ -245,7 +257,14 @@ $('a#bookmarklet_show').click(function(e){
 	$('div#bookmarklets').toggle(400);
 });
 
-
+/**
+ * render the links
+ */
+if (window.location.pathname == '/home') {
+    fetchAndRenderAllLinks({ api_url: '/api' });
+} else if (window.location.pathname =='/home/archive') {
+    fetchAndRenderAllLinks({ api_url: '/api/archive' });
+}
 
 /**
  * Sortable link order on /home
