@@ -190,7 +190,7 @@ var renderLink = function(data) {
 	
 	link_html = trimLinkLength(link_html);
 	
-	link.attr('href', data.url).html(link_html);
+	link.attr('href', data.readLink).html(link_html);
 	
 	link.click(function(e){
     	e.preventDefault();
