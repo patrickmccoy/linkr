@@ -2,6 +2,7 @@
 
 */
 
+$('#add_link_modal').modal({ backdrop: true });
 
 /**
  * returns string
@@ -247,7 +248,7 @@ $('a#add_link').click(function(e){
 	e.preventDefault();
 	
 	/* open a modal with the add link form in it */
-	$('#add_link_modal').modal({backdrop: true, keyboard: true});
+	
 });
 
 // show the bookmarklets div
