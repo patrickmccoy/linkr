@@ -199,7 +199,7 @@ var renderLink = function(data) {
     	if (window.location.pathname == '/home') {
     	    container.remove();
         }
-    	window.open(data.url);
+    	window.open(data.readLink);
 
     });
 	
@@ -242,14 +242,6 @@ var fetchAndRenderAllLinks = function(options) {
         
     });
 }
-
-
-$('a#add_link').click(function(e){
-	e.preventDefault();
-	
-	/* open a modal with the add link form in it */
-	
-});
 
 // show the bookmarklets div
 $('a#bookmarklet_show').click(function(e){
