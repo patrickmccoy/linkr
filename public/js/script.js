@@ -202,6 +202,8 @@ var renderLink = function(data) {
     	window.open(data.readLink);
 
     });
+    
+    container.data({link: data});
 	
 	/* Put it all together */
 	link_container.append(link);
