@@ -144,7 +144,7 @@ var niceTime = function(timestamp) {
  * Trim the length of a link and add an elipsis if its over a specified length
  */ 
 var trimLinkLength = function(link_html) {
-    var length = 75;
+    var length = 65;
     
 	if (link_html.length > length) {
 		link_html = link_html.substring(0,length)+'...';
