@@ -233,6 +233,11 @@ var fetchAndRenderAllLinks = function(options) {
     // default options
     options.api_url = options.api_url || '/api';
     
+    var title = $("title"),
+        title_text = title.text(),
+        active_page_nav = $(".topbar ul.nav .active a"),
+        active_page_text = active_page_nav.text();
+    
     $.ajax({
           url: options.api_url 
         , dataType: 'json'
@@ -240,6 +245,11 @@ var fetchAndRenderAllLinks = function(options) {
             data.items.forEach(function(link){
                 addLinkToPage(renderLink(link));
             });
+            
+            // update the nav and title to show the total number of items
+            var displayed_items = " ("+ data.totalItems +")";
+            title.text(title_text+displayed_items);
+            active_page_nav.text(active_page_text+displayed_items);
         }
         
     });
