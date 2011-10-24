@@ -235,6 +235,8 @@ var fetchAndRenderAllLinks = function(options) {
     
     var title = $("title"),
         title_text = title.text(),
+        banner = $(".content #banner"),
+        banner_text = banner.text(),
         active_page_nav = $(".topbar ul.nav .active a"),
         active_page_text = active_page_nav.text();
     
@@ -249,6 +251,7 @@ var fetchAndRenderAllLinks = function(options) {
             // update the nav and title to show the total number of items
             var displayed_items = " ("+ data.totalItems +")";
             title.text(title_text+displayed_items);
+            banner.text(banner_text+displayed_items);
             active_page_nav.text(active_page_text+displayed_items);
         }
         
