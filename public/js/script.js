@@ -55,6 +55,7 @@ Link.prototype.trimTitleLength = function() {
  * Render a link from JSON and return a jQuery object of that rendered link for placing on the page
  */
 Link.prototype.renderLink = function() {
+    var $self = this;
 	var container = $('<div>').attr('id',this._id).addClass('row'),
 		time = $('<span>').addClass('span3'),
 		link_container = $('<span>').addClass('span8'),
@@ -73,8 +74,12 @@ Link.prototype.renderLink = function() {
 
     	if (window.location.pathname == '/home') {
     	    container.remove();
+    	    // remove from the window.global.links.home array
+    	    window.global.links.home.splice($self._position, 1);
+    	    
+    	    updateLinkCount(window.global.total_links-1);
         }
-    	window.open(this._readLink);
+    	window.open($self._readLink);
 
     });
     
@@ -104,10 +109,10 @@ Link.prototype.addLinkToPage = function() {
     // put it on the page
 	if (window.location.pathname == '/home/archive') {
 		linkHeader.after(this.container);
-		window.global.links.archive.push(this);
+		this._position = window.global.links.archive.push(this)-1;
 	} else {
 		linkContainer.append(this.container);
-		window.global.links.home.push(this);
+		this._position = window.global.links.home.push(this)-1;
 	}
 	
 }
