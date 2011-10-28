@@ -1,6 +1,17 @@
-/* Author: 
+/* Author: Patrick McCoy
 
 */
+
+/**
+ * global variable to hold some data
+ */
+window.global = {
+      "total_links": 0
+    , "links": {
+          "home": []
+        , "archive": []
+    }
+};
 
 $('#add_link_modal').modal({ backdrop: true });
 
@@ -169,6 +180,7 @@ var addLink = function(form, modal) {
 			success: function(data) {
 				var link = renderLink(data);
 				addLinkToPage(link);
+				updateLinkCount(window.global.total_links+1);
 			}
 		});
     }
@@ -211,17 +223,66 @@ var renderLink = function(data) {
 			 .append(link_container)
 			 .append(handle);
 	
-	return container;
+	var $return = {  "container": container
+	              , "data": data
+	             };
+	return $return;
 }
 
-var addLinkToPage = function(renderedLink) {
+/**
+ * update the link count
+ * @param count - the number to update the containers with
+ * @param location - the specific locations to update with this count (home or archive)
+ */
+var updateLinkCount = function(count, location) {
+    // default location
+    location = location || window.location.pathname;
+    
+    window.global.total_links = count;
+    
+    var home = $(".link_count#home_count"),
+        archive = $(".link_count#archive_count"),
+        all = $(".link_count#all_count"),
+        title = $("title");
+    
+    // format the total number of items
+    var displayed_count = " ("+ count +")";
+    
+    // update the title
+    var regex = / \(\d+\)/;
+    if (regex.test(title.text())) {
+        title.text(title.text().replace(regex, displayed_count));
+    } else {
+        title.text(title.text()+displayed_count);
+    }
+    
+    // update the 'all' containers
+    all.text(displayed_count);
+    
+    // now update specific containers
+    switch (location) {
+        case "/home/archive":
+            archive.text(displayed_count);
+            break;
+        case "/home":
+            home.text(displayed_count);
+            break;
+        default: 
+            home.text(displayed_count);
+    }
+}
+
+// add a link to the page
+var addLinkToPage = function($link) {
 	var linkContainer = $('div#links .span12'),
 		linkHeader = $('div#links_header');
 
 	if (window.location.pathname == '/home/archive') {
-		linkHeader.after(renderedLink);
+		linkHeader.after($link.container);
+		window.global.links.archive.push($link.data);
 	} else {
-		linkContainer.append(renderedLink);
+		linkContainer.append($link.container);
+		window.global.links.home.push($link.data);
 	}
 	
 }
@@ -233,12 +294,6 @@ var fetchAndRenderAllLinks = function(options) {
     // default options
     options.api_url = options.api_url || '/api';
     
-    var title = $("title"),
-        title_text = title.text(),
-        banner = $(".content #banner"),
-        banner_text = banner.text(),
-        active_page_nav = $(".topbar ul.nav .active a"),
-        active_page_text = active_page_nav.text();
     
     $.ajax({
           url: options.api_url 
@@ -247,12 +302,7 @@ var fetchAndRenderAllLinks = function(options) {
             data.items.forEach(function(link){
                 addLinkToPage(renderLink(link));
             });
-            
-            // update the nav and title to show the total number of items
-            var displayed_items = " ("+ data.totalItems +")";
-            title.text(title_text+displayed_items);
-            banner.text(banner_text+displayed_items);
-            active_page_nav.text(active_page_text+displayed_items);
+            updateLinkCount(data.totalItems);
         }
         
     });
