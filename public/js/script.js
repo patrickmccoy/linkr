@@ -332,6 +332,10 @@ var fetchAndRenderAllLinks = function(options) {
     // default options
     options.api_url = options.api_url || '/api';
     
+    var loading = $("#links .loading");
+    
+    loading.show();
+    
     $.ajax({
           url: options.api_url 
         , dataType: 'json'
@@ -340,6 +344,7 @@ var fetchAndRenderAllLinks = function(options) {
                 var new_link = new Link(link);
                 new_link.addLinkToPage();
             });
+            loading.hide();
             updateLinkCount(data.totalItems);
         }
         
