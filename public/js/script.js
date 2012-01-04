@@ -1,7 +1,127 @@
-/* Author: 
+/* Author: Patrick McCoy
 
 */
 
+/**
+ * global variable to hold some data
+ */
+window.global = {
+      "total_links": 0
+    , "links": {
+          "home": []
+        , "archive": []
+    }
+};
+
+/**
+ * Link Class
+ *
+ * define a link
+ *
+ * @param object data: data object returned from the API about a link to construct the class
+ *
+ */
+var Link = function(data) {
+    // construct the object
+    this._id = data.id;
+    this._uri = data.uri
+    this._owner = data.owner;
+    this._created = data.created;
+    this._priority = data.priority;
+    this._read = data.read;
+    this._readLink = data.readLink;
+    this._readTime = data.readTime;
+    this._url = data.url;
+    this._title = data.title || data.url;
+}
+
+/**
+ * Trim the title of the link
+ *
+ * @return string the trimmed title
+ */
+Link.prototype.trimTitleLength = function() {
+    var length = 65;
+     
+    if (this._title.length > length) {
+    	this.title = $.trim(this._title.substring(0,length))+'...';
+    } else {
+        this.title = this._title;
+    }
+    return this.title;
+}
+
+/**
+ * Render a link from JSON and return a jQuery object of that rendered link for placing on the page
+ */
+Link.prototype.renderLink = function() {
+    var $self = this;
+	var container = $('<div>').attr('id',this._id).addClass('row'),
+		time = $('<span>').addClass('span3'),
+		link_container = $('<span>').addClass('span8'),
+		link = $('<a>').addClass('linkr_link').attr('target','_blank'),
+		handle = $('<span>').addClass('pull-right').addClass('sortable_handle').addClass('ui-icon').addClass('ui-icon-arrowthick-2-n-s');
+
+	time.html(niceTime(this._created));
+	
+	// put the link together
+	link_html = this.trimTitleLength();
+	
+	link.attr('href', this._readLink).html(link_html);
+	
+	link.click(function(e){
+    	e.preventDefault();
+
+    	if (window.location.pathname == '/home') {
+    	    container.remove();
+    	    // remove from the window.global.links.home array
+    	    window.global.links.home.splice($self._position, 1);
+    	    
+    	    updateLinkCount(window.global.total_links-1);
+        }
+    	window.open($self._readLink);
+
+    });
+    
+    container.data({ link: this });
+	
+	/* Put it all together */
+	link_container.append(link);
+	container.append(time)
+			 .append(link_container)
+			 .append(handle);
+	
+	this.container = container;
+	
+	return container;
+}
+
+/**
+ * Add link to the page
+ */
+Link.prototype.addLinkToPage = function() {
+	var linkContainer = $('div#links .span12'),
+		linkHeader = $('div#links_header');
+	
+	// render the container if it hasn't been rendered already
+	this.container = this.container || this.renderLink();
+    
+    // put it on the page
+	if (window.location.pathname == '/home/archive') {
+		linkHeader.after(this.container);
+		this._position = window.global.links.archive.push(this)-1;
+	} else {
+		linkContainer.append(this.container);
+		this._position = window.global.links.home.push(this)-1;
+	}
+	
+}
+
+/**
+ * END Link Class
+ */
+
+$('#add_link_modal').modal({ backdrop: true });
 
 /**
  * returns string
@@ -140,18 +260,6 @@ var niceTime = function(timestamp) {
 
 
 /**
- * Trim the length of a link and add an elipsis if its over a specified length
- */ 
-var trimLinkLength = function(link_html) {
-    var length = 75;
-    
-	if (link_html.length > length) {
-		link_html = link_html.substring(0,length)+'...';
-	}
-	return link_html;
-}
-
-/**
  * Render and show a modal window with an add link form in it
  */
 var addLink = function(form, modal) {
@@ -166,61 +274,55 @@ var addLink = function(form, modal) {
 				modal.find("input#url").val("");
 			},
 			success: function(data) {
-				var link = renderLink(data);
-				addLinkToPage(link);
+				var link = new Link(data);
+				link.addLinkToPage();
+				updateLinkCount(window.global.total_links+1);
 			}
 		});
     }
 }
 
 /**
- * Render a link from JSON and return a jQuery object of that rendered link for placing on the page
+ * update the link count
+ * @param count - the number to update the containers with
+ * @param location - the specific locations to update with this count (home or archive)
  */
-var renderLink = function(data) {
-	var container = $('<div>').attr('id',data.id).addClass('row'),
-		time = $('<span>').addClass('span3'),
-		link_container = $('<span>').addClass('span8'),
-		link = $('<a>').addClass('linkr_link').attr('target','_blank'),
-		handle = $('<span>').addClass('pull-right').addClass('sortable_handle').addClass('ui-icon').addClass('ui-icon-arrowthick-2-n-s');
-
-	time.html(niceTime(data.created));
-	
-	// put the link together
-	var link_html = data.title ? data.title : data.url;
-	
-	link_html = trimLinkLength(link_html);
-	
-	link.attr('href', data.url).html(link_html);
-	
-	link.click(function(e){
-    	e.preventDefault();
-
-    	if (window.location.pathname == '/home') {
-    	    container.remove();
-        }
-    	window.open(data.url);
-
-    });
-	
-	/* Put it all together */
-	link_container.append(link);
-	container.append(time)
-			 .append(link_container)
-			 .append(handle);
-	
-	return container;
-}
-
-var addLinkToPage = function(renderedLink) {
-	var linkContainer = $('div#links .span12'),
-		linkHeader = $('div#links_header');
-
-	if (window.location.pathname == '/home/archive') {
-		linkHeader.after(renderedLink);
-	} else {
-		linkContainer.append(renderedLink);
-	}
-	
+var updateLinkCount = function(count, location) {
+    // default location
+    location = location || window.location.pathname;
+    
+    window.global.total_links = count;
+    
+    var home = $(".link_count#home_count"),
+        archive = $(".link_count#archive_count"),
+        all = $(".link_count#all_count"),
+        title = $("title");
+    
+    // format the total number of items
+    var displayed_count = " ("+ count +")";
+    
+    // update the title
+    var regex = / \(\d+\)/;
+    if (regex.test(title.text())) {
+        title.text(title.text().replace(regex, displayed_count));
+    } else {
+        title.text(title.text()+displayed_count);
+    }
+    
+    // update the 'all' containers
+    all.text(displayed_count);
+    
+    // now update specific containers
+    switch (location) {
+        case "/home/archive":
+            archive.text(displayed_count);
+            break;
+        case "/home":
+            home.text(displayed_count);
+            break;
+        default: 
+            home.text(displayed_count);
+    }
 }
 
 /**
@@ -230,25 +332,24 @@ var fetchAndRenderAllLinks = function(options) {
     // default options
     options.api_url = options.api_url || '/api';
     
+    var loading = $("#links .loading");
+    
+    loading.show();
+    
     $.ajax({
           url: options.api_url 
         , dataType: 'json'
         , success: function(data) {
             data.items.forEach(function(link){
-                addLinkToPage(renderLink(link));
+                var new_link = new Link(link);
+                new_link.addLinkToPage();
             });
+            loading.hide();
+            updateLinkCount(data.totalItems);
         }
         
     });
 }
-
-
-$('a#add_link').click(function(e){
-	e.preventDefault();
-	
-	/* open a modal with the add link form in it */
-	$('#add_link_modal').modal({backdrop: true, keyboard: true});
-});
 
 // show the bookmarklets div
 $('a#bookmarklet_show').click(function(e){

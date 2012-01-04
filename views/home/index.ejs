@@ -8,10 +8,10 @@
                 <% } else { %>
                 <li>
                 <% } %>
-                    <a href="/home">Home</a>
+                    <a href="/home">Home<span class="link_count" id="home_count"></span></a>
                 </li>
                 <li>
-                    <a id="add_link" href="/home/add">Add a link</a>
+                    <a id="add_link" href="/home/add" data-controls-modal="add_link_modal" data-backdrop="true" data-keyboard="true">Add a link</a>
                 </li>
                 
                 <% if (path == '/home/archive') { %>
@@ -19,7 +19,7 @@
                 <% } else { %>
                 <li>
                 <% } %>
-                    <a href="/home/archive">Link Archive</a>
+                    <a href="/home/archive">Link Archive<span class="link_count" id="archive_count"></span></a>
                 </li>
                 
                 <li>
@@ -38,7 +38,7 @@
 <div class="content">
     <div class="row">
         <div class="span 16">
-            <h4>Your Saved Links</h4>
+            <h4 id="banner">Your Saved Links<span class="link_count" id="all_count"></span></h4>
             <a class="btn default small" id="bookmarklet_show" href="#">Add Bookmarklets</a>
             <div id="bookmarklets" style="display: none; ">
             	<p>Drag this bookmarklet to your bookmarks to add a page to linkr from anywhere: <a class="btn default small" href="javascript:(function(){_add_link=document.createElement('SCRIPT');_add_link.type='text/javascript';_add_link.src='http://linkr.cc/js/add_link.js?';document.getElementsByTagName('head')[0].appendChild(_add_link);
@@ -54,6 +54,7 @@
             	    <div id="links_header" class="row">
                 		<span class="span3"><h4>Time Added</h4></span> <span class="span9"><h4>Link</h4></span>
                 	</div>
+                	<div class="loading" style="display: none; text-align: center;"><img src="/images/loading.gif"></div>
                 </div>
             </div>
             

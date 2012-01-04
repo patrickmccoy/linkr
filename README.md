@@ -10,9 +10,9 @@ Blog post about linkr [here](http://blog.jpgtransfer.com/post/6220484007/linkr-a
 
 ## Installing ##
 
-You need to have NodeJS, NPM and MongoDB installed on your system to work.  Follow the directions [here](https://github.com/joyent/node/wiki/Installation) for installing NodeJS/NPM and the directions [here](http://www.mongodb.org/display/DOCS/Quickstart) for installing MongoDB on your system.
+You need to have NodeJS, NPM, MongoDB and Redis installed on your system to work.  Follow the directions [here](https://github.com/joyent/node/wiki/Installation) for installing NodeJS/NPM, the directions [here](http://www.mongodb.org/display/DOCS/Quickstart) for installing MongoDB and the directions [here](http://redis.io/download) for installing Redis on your system.
 
-Once you have installed NodeJS, NPM and MongoDB, in the directory where you cloned this repository, issue the following command to install all dependencies:
+Once you have installed NodeJS, NPM, MongoDB and Redis, in the directory where you cloned this repository, issue the following command to install all dependencies:
 
 	npm install .
 
@@ -40,3 +40,13 @@ You can run linkr in production with the following command:
 
 - Better error handling in the UI
 - Handle errors in Node.io when trying to scrape a site which doesn't have a title tag.  Currently the errors just cause the node process to quit, taking down the entire site.
+
+## License ##
+
+Copyright (c) 2012 Patrick McCoy <patrick.james.mccoy@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
