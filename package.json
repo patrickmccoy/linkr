@@ -1,14 +1,14 @@
 {
     "name": "linkr"
-  , "version": "0.0.1"
+  , "version": "0.0.2"
   , "private": true
   , "dependencies": {
-  	  "cluster": ">=0.6.9"
-  	, "express": ">=2.4.3"
-  	, "connect-redis": ">=1.0.6"
-    , "ejs": ">= 0.0.1"
-    , "mongoose": ">=2.3.0"
-    , "mhash": ">=0.1.1"
-    , "node.io": ">=0.3.3"
+  	  "cluster": "=0.6.9"
+  	, "express": "=2.4.3"
+  	, "connect-redis": "=1.0.6"
+    , "ejs": "= 0.0.1"
+    , "mongoose": "=2.3.0"
+    , "mhash": "=0.1.1"
+    , "node.io": "=0.3.3"
   }
 }
